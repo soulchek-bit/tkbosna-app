@@ -2,9 +2,15 @@
 <html lang="bs">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#2b6436">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <meta name="apple-mobile-web-app-title" content="TK Bosna">
 <title>TK Bosna – evidencija treninga</title>
 <style>
@@ -141,6 +147,11 @@ details.day .kidhead:not(:first-of-type){border-top:1px solid var(--line);margin
 .spin{width:36px;height:36px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--brand);margin:0 auto 12px;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .btn:disabled{opacity:.6}
+/* ponašanje kao aplikacija: bez zumiranja, bez "gumenog" skrolanja, bez označavanja teksta na dugmadima */
+html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select{-webkit-user-select:text;user-select:text;font-size:16px!important}
+button,a,label{touch-action:manipulation}
 .tgl{cursor:pointer;position:relative}
 .tgl input{position:absolute;opacity:0;width:1px;height:1px}
 .sw{flex:none;width:50px;height:30px;border-radius:999px;background:#cfd5cc;position:relative;transition:.2s}
@@ -574,6 +585,11 @@ const C={
 };
 document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.change;if(k&&C[k])C[k](e.target)});
 document.addEventListener('input',e=>{if(e.target.id==='q'){const v=e.target.value.trim().toLowerCase();document.querySelectorAll('.kid').forEach(b=>b.style.display=b.dataset.n.includes(v)?'':'none')}});
+
+/* ---------- bez zumiranja (iOS Safari ignoriše user-scalable, pa ga blokiramo i ovdje) ---------- */
+['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+let lastTap=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTap<300&&!e.target.closest('input,textarea,select'))e.preventDefault();lastTap=n},{passive:false});
 
 /* ---------- start ---------- */
 (async function(){
