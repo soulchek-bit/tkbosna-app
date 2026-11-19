@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2b6436">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TK Bosna">
+<title>TK Bosna – evidencija treninga</title>
+<style>
+:root{--bg:#f3f5ef;--card:#fff;--ink:#16201a;--muted:#667068;--line:#e1e5dc;--brand:#2b6436;--brand2:#e7f1e3;--danger:#b3261e;--r:16px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+header h1{font-size:17px;margin:0;font-weight:650;display:flex;align-items:center;gap:8px}
+header h1 i{width:18px;height:18px;border-radius:50%;background:#d6e34b;display:inline-block;box-shadow:inset -3px 0 0 rgba(0,0,0,.08)}
+.rolechip{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:999px;padding:8px 12px;font:inherit;font-size:14px;display:flex;align-items:center;gap:6px;max-width:55%}
+.rolechip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+main{max-width:640px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;max-width:160px;border:0;background:none;padding:9px 4px 11px;font:inherit;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:23px;height:23px}
+nav button.on{color:var(--brand);font-weight:650}
+svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.st{flex:1;font-size:11px;color:var(--muted);border-top:4px solid var(--line);padding-top:6px}
+.st.sdone,.st.on{border-color:var(--brand)}
+.st.on{color:var(--ink);font-weight:650}
+h2{font-size:21px;margin:6px 0 12px;letter-spacing:-.01em}
+.search{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);font:inherit;font-size:16px;background:#fff;margin-bottom:12px;color:var(--ink)}
+.kids{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kid{display:flex;align-items:center;gap:10px;padding:12px;border-radius:var(--r);border:1px solid var(--line);background:#fff;font:inherit;text-align:left;min-height:66px;color:var(--ink)}
+.kid:active,.type:active,.hr:active,.row:active{transform:scale(.98);background:var(--brand2)}
+.av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--brand2);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:14px}
+.kn{font-weight:600;font-size:15px;line-height:1.2}
+.types{display:grid;gap:10px}
+.type{display:flex;justify-content:space-between;align-items:center;padding:18px 16px;border-radius:var(--r);border:1px solid var(--line);border-left:7px solid var(--c);background:#fff;font:inherit;text-align:left;min-height:70px;color:var(--ink)}
+.tn{font-weight:650;font-size:17px}.tp{color:var(--muted);font-size:14px;white-space:nowrap;margin-left:8px}
+.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.hr{padding:18px 6px;border-radius:var(--r);border:1px solid var(--line);background:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink)}
+.hr b{font-size:30px;line-height:1.1}.hr em{font-style:normal;font-size:13px;color:var(--muted)}.hr span{font-size:12px;color:var(--brand);font-weight:600;margin-top:4px}
+.picked{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--brand2);color:var(--brand);border:0;border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;font-weight:600}
+.chip small{font-weight:400;opacity:.8}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:6px 16px 16px;margin-bottom:6px}
+.cf-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:12px}
+.cf-row span{color:var(--muted)} .cf-row b{text-align:right}
+.cf-total{display:flex;justify-content:space-between;align-items:baseline;padding-top:14px}
+.cf-total b{font-size:32px;color:var(--brand);letter-spacing:-.02em}
+input[type=date],input[type=month],select{font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;margin-top:10px;color:var(--ink)}
+.btn.big{padding:18px;font-size:18px}
+.btn.ok{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn.danger{color:var(--danger)}
+.done{text-align:center;padding-top:16px}
+.tick{width:76px;height:76px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;margin:0 auto 10px}
+.tick svg{width:40px;height:40px;stroke-width:3}
+.done .sum{font-size:17px;margin:4px 0}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.bar h2{margin:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.kpi span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kpi b{font-size:20px}
+.kpi.main{grid-column:1/-1;background:var(--brand);color:#fff;border-color:var(--brand)} .kpi.main span{color:rgba(255,255,255,.8)} .kpi.main b{font-size:32px;letter-spacing:-.02em}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:22px 4px 8px;font-weight:650}
+.rows{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border:0;border-bottom:1px solid var(--line);width:100%;background:none;font:inherit;text-align:left;color:inherit}
+.row:last-child{border-bottom:0}
+.grow{flex:1;min-width:0}
+.row .t{font-weight:600}
+.row .s{font-size:13px;color:var(--muted)}
+.amt{font-weight:650;white-space:nowrap}
+.chev{color:var(--muted);width:18px;height:18px;flex:none}
+.xbtn{border:1px solid var(--line);background:#fff;color:var(--danger);font:inherit;font-size:12px;padding:5px 9px;border-radius:8px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--c)}
+.dayhead{display:flex;justify-content:space-between;padding:16px 4px 8px;font-weight:650;font-size:15px}
+details.day{background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+details.day summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:13px 14px;font-weight:600;cursor:pointer;gap:8px}
+details.day summary::-webkit-details-marker{display:none}
+details.day summary .s{font-weight:400;font-size:13px;color:var(--muted)}
+details.day[open] summary{border-bottom:1px solid var(--line);background:#fafbf8}
+.track{height:6px;background:var(--bg);border-radius:3px;margin-top:6px;overflow:hidden}.track i{display:block;height:100%;background:var(--c,var(--brand));border-radius:3px}
+.report{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px 16px}
+.rp-club{font-weight:700;color:var(--brand);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.report h2{margin:4px 0 2px;font-size:20px}
+.rp-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:16px 0;padding:12px 14px;background:var(--bg);border-radius:12px;font-size:14px}
+.rp-meta span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.rp-meta b{word-break:break-word}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;padding:6px 4px;border-bottom:1px solid var(--line);letter-spacing:.03em}
+.tbl td{padding:9px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl td small{display:block;color:var(--muted);font-size:12px}
+.tbl .r{text-align:right;white-space:nowrap}
+.tbl tfoot td{font-weight:650;border-bottom:0}
+.rp-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding:14px 16px;background:var(--brand);color:#fff;border-radius:12px}
+.rp-total span{font-size:14px;margin-right:10px}.rp-total b{font-size:24px;letter-spacing:-.02em;white-space:nowrap}
+.rp-foot{font-size:12.5px;color:var(--muted);margin-top:14px}
+.muted{color:var(--muted)}
+.note{font-size:12.5px;color:var(--muted);margin-top:22px;text-align:center;line-height:1.5}
+.sheet-bg{position:fixed;inset:0;background:rgba(10,20,12,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:#fff;width:100%;max-width:640px;border-radius:22px 22px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+.sh-title{font-size:19px;font-weight:700;margin:0 0 6px}
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;z-index:30;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.set .item{padding:12px 14px;border-bottom:1px solid var(--line)}
+.set .item:last-child{border-bottom:0}
+.set input{width:100%;font:inherit;font-size:15px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;color:var(--ink);background:#fff}
+.set label{font-size:12px;color:var(--muted);display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.trow{display:grid;grid-template-columns:12px 1fr 96px auto;gap:8px;align-items:center}
+.addbtn{border:0;background:none;color:var(--brand);font:inherit;font-weight:650;padding:12px 14px;width:100%;text-align:left}
+.hint{font-size:13px;color:var(--muted);margin:8px 4px 0}
+.empty{text-align:center;color:var(--muted);padding:34px 10px;background:#fff;border:1px dashed var(--line);border-radius:var(--r)}
+.back{border:0;background:none;color:var(--brand);font:inherit;font-weight:600;padding:4px 0;margin-bottom:8px;display:flex;align-items:center;gap:2px}
+.back svg{width:18px;height:18px}
+.navrow{display:flex;gap:10px}.navrow .btn{flex:1}
+.kidhead{display:flex;justify-content:space-between;padding:11px 14px 2px;font-weight:650;font-size:15px}
+details.day .kidhead:not(:first-of-type){border-top:1px solid var(--line);margin-top:4px}
+.row.sub{padding:7px 14px;border-bottom:0}
+.editlbl{font-size:12px;color:var(--brand);font-weight:600;border:1px solid var(--line);border-radius:8px;padding:4px 8px;flex:none}
+.tap{cursor:pointer}.tap:active{background:var(--brand2)}
+.ef label{display:block;font-size:12px;color:var(--muted);margin-top:12px}
+.ef select,.ef input{display:block;width:100%;margin-top:4px;font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.hpick{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.hpick button{flex:1;min-width:44px;padding:11px 0;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:650;color:var(--ink)}
+.hpick button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+@media (min-width:520px){.kids{grid-template-columns:repeat(3,1fr)}.hours{grid-template-columns:repeat(6,1fr)}}
+
+.login{max-width:420px;margin:6vh auto 0;text-align:left}
+.lg-ball{width:56px;height:56px;border-radius:50%;background:#d6e34b;margin-bottom:16px;position:relative;overflow:hidden}
+.lg-ball::before,.lg-ball::after{content:"";position:absolute;width:56px;height:56px;border-radius:50%;border:3px solid var(--brand);top:0}
+.lg-ball::before{left:-38px}.lg-ball::after{right:-38px}
+.login label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-top:14px}
+.login input{display:block;width:100%;margin-top:6px;padding:14px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.login .btn{margin-top:20px}
+.err{background:#fdecea;color:var(--danger);border:1px solid #f5c6c2;border-radius:12px;padding:12px 14px;margin:14px 0 0;font-size:14px}
+.loading{text-align:center;padding:22vh 0;color:var(--muted)}
+.spin{width:36px;height:36px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--brand);margin:0 auto 12px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.btn:disabled{opacity:.6}
+.tgl{cursor:pointer;position:relative}
+.tgl input{position:absolute;opacity:0;width:1px;height:1px}
+.sw{flex:none;width:50px;height:30px;border-radius:999px;background:#cfd5cc;position:relative;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.2s}
+.tgl input:checked+.sw{background:var(--brand)}
+.tgl input:checked+.sw::after{left:23px}
+</style>
+</head>
+<body>
+<header>
+  <h1><i></i><span id="club">TK Bosna</span></h1>
+  <button class="rolechip" id="acct" style="display:none" data-act="rolesheet"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg><span id="who"></span></button>
+</header>
+<main id="main"></main>
+<nav id="nav"></nav>
+<div class="toast" id="toast"></div>
+<div id="sheet"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =====================================================================
+   TK Bosna – evidencija treninga (povezano sa Supabase bazom)
+   ===================================================================== */
+const CFG={
+  url:'https://gqdeabzvfxdytymargil.supabase.co',
+  key:'sb_publishable_bcbQYWEt6CFW8G2AuC6lOg_1HPmwh7M',
+  club:'TK Bosna'
+};
+const HOURS=[0.5,1,1.5,2,2.5,3];
+const DAYS=['nedjelja','ponedjeljak','utorak','srijeda','četvrtak','petak','subota'];
+const MONTHS=['januar','februar','mart','april','maj','juni','juli','august','septembar','oktobar','novembar','decembar'];
+const COLORS=['#2b6436','#3b7dd8','#d9822b','#8e5bd1','#c0392b','#0f8b8d','#b5892b','#5d6b7a'];
+const I={
+ plus:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+ list:'<svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
+ chart:'<svg viewBox="0 0 24 24"><path d="M3 20h18M6 16v-5M11 16V6M16 16v-8"/></svg>',
+ doc:'<svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"/></svg>',
+ gear:'<svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>',
+ chev:'<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+ left:'<svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>',
+ check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+};
+
+/* ---------- pomoćne ---------- */
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseISO=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const today=()=>iso(new Date());
+const fmtDate=s=>{const d=parseISO(s);return pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear()+'.'};
+function fmtDay(s){const d=parseISO(s);const y=iso(new Date(Date.now()-864e5));const w=DAYS[d.getDay()];const l=s===today()?'Danas':s===y?'Jučer':w[0].toUpperCase()+w.slice(1);return l+', '+fmtDate(s)}
+const monthLabel=m=>{const[y,mm]=m.split('-').map(Number);return MONTHS[mm-1]+' '+y};
+function km(n){if(n==null||isNaN(n))return '—';let[a,b]=Math.abs(n).toFixed(2).split('.');a=a.replace(/\B(?=(\d{3})+(?!\d))/g,'.');return(n<0?'-':'')+a+','+b+' KM'}
+const num=h=>String(h).replace('.',',');
+const hrs=h=>num(h)+' h';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials=n=>String(n||'?').trim().split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase();
+const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+const r2=n=>Math.round(n*100)/100;
+function groupBy(a,f){const o={};a.forEach(x=>{const k=f(x);(o[k]=o[k]||[]).push(x)});return o}
+
+/* ---------- baza ---------- */
+let sb=null;
+try{sb=window.supabase.createClient(CFG.url,CFG.key)}catch(e){}
+async function q(p){const{data,error}=await p;if(error)throw error;return data}
+function errText(e){
+ const m=String((e&&(e.message||e.error_description))||e||'');
+ if(/Failed to fetch|NetworkError|network/i.test(m))return 'Nema veze s internetom. Pokušajte ponovo.';
+ if(/row-level security|permission denied|PGRST116|0 rows/i.test(m))return 'Nemate dozvolu za ovu radnju.';
+ if(/Invalid login credentials/i.test(m))return 'Pogrešan email ili lozinka.';
+ if(/Email not confirmed/i.test(m))return 'Email nije potvrđen. Javite se direktoru.';
+ return m||'Došlo je do greške.';
+}
+const nn=v=>v==null?null:+v;
+const mapE=r=>({id:r.id,date:r.datum,childId:r.dijete_id,trainerId:r.trener_id,typeId:r.vrsta_id,typeName:r.naziv_vrste,hours:+r.sati,price:nn(r.cijena_po_satu),amount:nn(r.iznos)||0,ts:Date.parse(r.kreirano)||0});
+const mapC=r=>({id:r.id,name:r.ime,parent:r.roditelj||'',email:r.email_roditelja||'',archived:!r.aktivno});
+const mapT=r=>({id:r.id,name:r.naziv,price:nn(r.cijena_po_satu),color:r.boja||'#999',archived:!r.aktivno,order:r.redoslijed||0});
+const mapP=r=>({id:r.id,name:r.ime,role:r.uloga,archived:!r.aktivan});
+
+/* ---------- stanje ---------- */
+let me=null;
+const S={types:[],children:[],trainers:[],entries:[],trenerVidiCijene:true};
+const SP=()=>isDir()||S.trenerVidiCijene;
+let loadedMonth=null,view='unos',W={step:1},month=today().slice(0,7),trFilter='',reportChild=null,busy=false,E=null;
+
+const child=id=>S.children.find(c=>c.id===id)||{name:'(nepoznato dijete)',parent:'',email:''};
+const type=id=>S.types.find(t=>t.id===id);
+const typeColor=e=>(type(e.typeId)||{}).color||'#999';
+const trName=id=>(S.trainers.find(t=>t.id===id)||(me&&me.id===id?me:null)||{name:'—'}).name;
+const isDir=()=>!!me&&me.role==='direktor';
+const meId=()=>me&&me.id;
+const visible=()=>isDir()?S.entries:S.entries.filter(e=>e.trainerId===meId());
+const active=a=>a.filter(x=>!x.archived);
+const byName=(a,b)=>a.name.localeCompare(b.name,'bs');
+
+async function loadBase(){
+ const [p,c,t,st]=await Promise.all([
+  q(sb.from('profili').select('*').order('ime')),
+  q(sb.from('djeca').select('*').order('ime')),
+  q(sb.rpc('vrste_lista')),
+  q(sb.from('postavke').select('treneri_vide_cijene').eq('id',1))]);
+ S.trainers=p.map(mapP);S.children=c.map(mapC);S.types=t.map(mapT);
+ S.trenerVidiCijene=!(st&&st[0]&&st[0].treneri_vide_cijene===false);
+}
+async function loadMonth(force){
+ if(!force&&loadedMonth===month)return;
+ const[y,m]=month.split('-').map(Number);
+ const r=await q(sb.rpc('treninzi_lista',{od:month+'-01',do_:iso(new Date(y,m,0))}));
+ S.entries=r.map(mapE);loadedMonth=month;
+}
+async function fetchEntry(id){const r=await q(sb.rpc('treninzi_lista',{p_id:id}));if(!r||!r.length)throw new Error('0 rows');return r[0]}
+async function refresh(full){
+ try{if(full)await loadBase();await loadMonth(true);render()}catch(e){toast(errText(e))}
+}
+
+/* ---------- prijava ---------- */
+function showLogin(msg,email){
+ me=null;$('#nav').innerHTML='';$('#acct').style.display='none';
+ $('#main').innerHTML=`<div class="login"><div class="lg-ball"></div><h2>Evidencija treninga</h2><p class="muted" style="margin-top:-6px">${esc(CFG.club)} · prijava za trenere i upravu</p>
+ ${msg?`<div class="err">${esc(msg)}</div>`:''}
+ <form id="lf"><label>Email<input type="email" id="le" autocomplete="username" required value="${esc(email||'')}"></label>
+ <label>Lozinka<input type="password" id="lp" autocomplete="current-password" required></label>
+ <button class="btn big ok" type="submit" id="lb">Prijavi se</button></form>
+ <p class="note">Pristupne podatke dobijate od uprave kluba.</p></div>`;
+}
+function showLoading(t){$('#main').innerHTML=`<div class="loading"><div class="spin"></div><p>${esc(t||'Učitavam…')}</p></div>`}
+async function afterLogin(user){
+ showLoading();
+ try{
+  const rows=await q(sb.from('profili').select('*').eq('id',user.id));
+  const prof=rows&&rows[0];
+  if(!prof||!prof.aktivan){await sb.auth.signOut();return showLogin('Vaš račun nema pristup aplikaciji. Javite se upravi kluba.',user.email)}
+  me=mapP(prof);
+  await loadBase();await loadMonth(true);
+  view=isDir()?'pregled':'unos';W={step:1};
+  $('#acct').style.display='';render(true);
+ }catch(e){showLogin(errText(e),user.email)}
+}
+document.addEventListener('submit',async e=>{
+ if(e.target.id!=='lf')return;e.preventDefault();
+ const email=$('#le').value.trim(),password=$('#lp').value;const b=$('#lb');b.disabled=true;b.textContent='Prijavljujem…';
+ const{data,error}=await sb.auth.signInWithPassword({email,password});
+ if(error)return showLogin(errText(error),email);
+ afterLogin(data.user);
+});
+
+/* ---------- prikaz ---------- */
+function render(scroll){
+ if(!me)return;
+ $('#club').textContent=CFG.club;
+ $('#who').textContent=me.name;
+ const tabs=isDir()?[['pregled','Pregled',I.chart],['djeca','Izvještaji',I.doc],['unos','Unos',I.plus],['postavke','Postavke',I.gear]]
+                  :[['unos','Unos',I.plus],['moji','Moji unosi',I.list]];
+ const ok=tabs.map(t=>t[0]).concat(isDir()?['izvjestaj']:[]);
+ if(!ok.includes(view))view=tabs[0][0];
+ const act=view==='izvjestaj'?'djeca':view;
+ $('#nav').innerHTML=tabs.map(t=>`<button class="${t[0]===act?'on':''}" data-act="go" data-v="${t[0]}">${t[2]}${t[1]}</button>`).join('');
+ $('#main').innerHTML=V[view]();
+ if(scroll)window.scrollTo(0,0);
+}
+const V={};
+
+/* ---------- UNOS ---------- */
+V.unos=()=>{
+ const st=W.step;let h='';
+ if(st<5)h+=`<div class="steps">${['Dijete','Vrsta','Sati','Potvrda'].map((s,i)=>`<div class="st ${i+1<st?'sdone':''} ${i+1===st?'on':''}">${s}</div>`).join('')}</div>`;
+ const picked=()=>{let p=`<div class="picked"><button class="chip" data-act="step" data-s="1">${esc(child(W.childId).name)} <small>promijeni</small></button>`;
+   if(st>2&&W.typeId)p+=`<button class="chip" data-act="step" data-s="2">${esc(type(W.typeId).name)} <small>promijeni</small></button>`;return p+'</div>'};
+ if(st===1){
+  h+=`<h2>Izaberi dijete</h2><input id="q" class="search" type="search" placeholder="Traži po imenu…" autocomplete="off">
+  <div class="kids">${active(S.children).sort(byName).map(c=>`<button class="kid" data-act="child" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><span class="av">${esc(initials(c.name))}</span><span class="kn">${esc(c.name)}</span></button>`).join('')}</div>`;
+  if(!active(S.children).length)h+=`<div class="empty">Još nema djece. ${isDir()?'Dodajte ih u Postavkama.':'Uprava ih dodaje u Postavkama.'}</div>`;
+ }
+ if(st===2){
+  h+=picked()+`<h2>Vrsta treninga</h2><div class="types">${active(S.types).map(t=>`<button class="type" style="--c:${t.color}" data-act="type" data-id="${t.id}"><span class="tn">${esc(t.name)}</span>${SP()?`<span class="tp">${km(t.price)} / sat</span>`:''}</button>`).join('')}</div>`;
+ }
+ if(st===3){
+  const t=type(W.typeId);
+  h+=picked()+`<h2>Koliko sati?</h2><div class="hours">${HOURS.map(x=>`<button class="hr" data-act="hours" data-h="${x}"><b>${num(x)}</b><em>${x===0.5?'30 min':x===1?'sat':x%1===0&&x<5?'sata':'sati'}</em>${SP()?`<span>${km(x*t.price)}</span>`:''}</button>`).join('')}</div>`;
+ }
+ if(st===4){
+  const t=type(W.typeId),c=child(W.childId);
+  h+=`<h2>Provjeri i potvrdi</h2><div class="card">
+   <div class="cf-row"><span>Dijete</span><b>${esc(c.name)}</b></div>
+   <div class="cf-row"><span>Vrsta</span><b>${esc(t.name)}</b></div>
+   <div class="cf-row"><span>Trajanje</span><b>${hrs(W.hours)}</b></div>
+   ${SP()?`<div class="cf-row"><span>Cijena po satu</span><b>${km(t.price)}</b></div>`:''}
+   <div class="cf-row"><span>Trener</span><b>${esc(me.name)}</b></div>
+   <div class="cf-row" ${SP()?'':'style="border-bottom:0"'}><span>Datum</span><input type="date" data-change="dt" value="${W.date}" max="${today()}"></div>
+   ${SP()?`<div class="cf-total"><span>Iznos</span><b>${km(W.hours*t.price)}</b></div>`:''}</div>
+   <button class="btn big ok" data-act="save">Potvrdi i sačuvaj</button>
+   <button class="btn ghost" data-act="step" data-s="3">Nazad</button>`;
+ }
+ if(st===5){
+  const e=W.last,c=child(e.childId),first=c.name.split(' ')[0];
+  const day=visible().filter(x=>x.childId===e.childId&&x.date===e.date);
+  h+=`<div class="done"><div class="tick">${I.check}</div><h2 style="margin-bottom:4px">Sačuvano</h2>
+   <p class="sum">${esc(c.name)} · ${esc(e.typeName)} · ${hrs(e.hours)}${SP()?` · <b>${km(e.amount)}</b>`:''}</p>
+   ${day.length?`<p class="muted">${e.date===today()?'Danas':fmtDate(e.date)} za ${esc(first)}${isDir()?'':' (vaši unosi)'}: ${day.length} ${day.length===1?'trening':'treninga'}, ${SP()?km(sum(day,x=>x.amount)):hrs(sum(day,x=>x.hours))}</p>`:''}</div>
+   <button class="btn big ok" data-act="again">Još jedan trening za ${esc(first)}</button>
+   <button class="btn" data-act="step" data-s="1">Drugo dijete</button>
+   <button class="btn ghost danger" data-act="undo">Poništi ovaj unos</button>`;
+ }
+ return h;
+};
+
+/* ---------- MOJI UNOSI (trener) ---------- */
+V.moji=()=>{
+ const es=visible().filter(e=>e.date.startsWith(month));
+ let h=`<div class="bar"><h2>Moji unosi</h2><input type="month" data-change="month" value="${month}"></div>`;
+ h+=`<div class="kpis"><div class="kpi"><span>Treninga</span><b>${es.length}</b></div><div class="kpi"><span>Sati</span><b>${num(sum(es,e=>e.hours))}</b></div><div class="kpi"><span>Djece</span><b>${new Set(es.map(e=>e.childId)).size}</b></div></div>`;
+ if(!es.length)return h+`<div class="empty">Nema unosa za ${monthLabel(month)}.</div>`;
+ const days=groupBy(es,e=>e.date);
+ Object.keys(days).sort().reverse().forEach(d=>{
+  const list=days[d].sort((a,b)=>b.ts-a.ts);
+  h+=`<div class="dayhead"><span>${fmtDay(d)}</span><span class="muted">${SP()?km(sum(list,e=>e.amount)):hrs(sum(list,e=>e.hours))}</span></div><div class="rows">`;
+  list.forEach(e=>{const tdy=new Date(e.ts).toDateString()===new Date().toDateString();
+   h+=`<div class="row"><span class="dot" style="--c:${typeColor(e)}"></span><div class="grow"><div class="t">${esc(child(e.childId).name)}</div><div class="s">${esc(e.typeName)} · ${hrs(e.hours)}</div></div>${SP()?`<span class="amt">${km(e.amount)}</span>`:''}${tdy?`<button class="xbtn" data-act="del" data-id="${e.id}">Poništi</button>`:''}</div>`});
+  h+='</div>';
+ });
+ return h+`<p class="note">Unose napravljene danas možete poništiti. Za starije ispravke javite se upravi.</p>`;
+};
+
+/* ---------- PREGLED (direktor) ---------- */
+V.pregled=()=>{
+ const es=S.entries.filter(e=>e.date.startsWith(month)&&(!trFilter||e.trainerId===trFilter));
+ let h=`<div class="bar"><h2>Pregled</h2><button class="xbtn" style="color:var(--brand)" data-act="reload">Osvježi</button></div><div class="filters"><input type="month" data-change="month" value="${month}">
+  <select data-change="tr"><option value="">Svi treneri</option>${S.trainers.map(t=>`<option value="${t.id}" ${trFilter===t.id?'selected':''}>${esc(t.name)}${t.archived?' (uklonjen)':''}</option>`).join('')}</select></div>`;
+ h+=`<div class="kpis"><div class="kpi main"><span>Ukupno · ${monthLabel(month)}</span><b>${km(sum(es,e=>e.amount))}</b></div>
+  <div class="kpi"><span>Sati</span><b>${num(sum(es,e=>e.hours))}</b></div><div class="kpi"><span>Treninga</span><b>${es.length}</b></div><div class="kpi"><span>Djece</span><b>${new Set(es.map(e=>e.childId)).size}</b></div></div>`;
+ if(!es.length)return h+`<div class="empty">Nema unosa za odabrani period.</div>`;
+ const td=es.filter(e=>e.date===today());
+ if(month===today().slice(0,7))h+=`<h3>Danas</h3><div class="rows"><div class="row"><div class="grow"><div class="t">${td.length} ${td.length===1?'trening':'treninga'} · ${num(sum(td,e=>e.hours))} h</div><div class="s">${new Set(td.map(e=>e.childId)).size} djece</div></div><span class="amt">${km(sum(td,e=>e.amount))}</span></div></div>`;
+ const bc=groupBy(es,e=>e.childId);
+ h+=`<h3>Po djetetu</h3><div class="rows">`+Object.keys(bc).map(id=>({id,l:bc[id],a:sum(bc[id],e=>e.amount)})).sort((a,b)=>b.a-a.a).map(x=>
+  `<button class="row" data-act="report" data-id="${x.id}"><span class="av">${esc(initials(child(x.id).name))}</span><div class="grow"><div class="t">${esc(child(x.id).name)}</div><div class="s">${x.l.length} treninga · ${hrs(sum(x.l,e=>e.hours))}</div></div><span class="amt">${km(x.a)}</span>${I.chev}</button>`).join('')+`</div>`;
+ const bt=groupBy(es,e=>e.typeName),tot=sum(es,e=>e.amount);
+ h+=`<h3>Po vrsti treninga</h3><div class="rows">`+Object.keys(bt).map(k=>({k,l:bt[k],a:sum(bt[k],e=>e.amount)})).sort((a,b)=>b.a-a.a).map(x=>{const c=typeColor(x.l[0]);
+  return `<div class="row"><div class="grow"><div class="t">${esc(x.k)}</div><div class="s">${x.l.length} treninga · ${hrs(sum(x.l,e=>e.hours))}</div><div class="track" style="--c:${c}"><i style="width:${tot?(x.a/tot*100).toFixed(1):0}%"></i></div></div><span class="amt">${km(x.a)}</span></div>`}).join('')+`</div>`;
+ if(!trFilter){const br=groupBy(es,e=>e.trainerId);
+  h+=`<h3>Po treneru</h3><div class="rows">`+Object.keys(br).map(id=>`<div class="row"><div class="grow"><div class="t">${esc(trName(id))}</div><div class="s">${br[id].length} treninga · ${hrs(sum(br[id],e=>e.hours))}</div></div><span class="amt">${km(sum(br[id],e=>e.amount))}</span></div>`).join('')+`</div>`;}
+ const bd=groupBy(es,e=>e.date);
+ h+=`<h3>Po danima (iznos po djetetu)</h3><p class="hint" style="margin:-4px 4px 8px">Tapnite bilo koji trening da ga izmijenite ili obrišete.</p>`;
+ Object.keys(bd).sort().reverse().forEach((d,i)=>{
+  const perKid=groupBy(bd[d],e=>e.childId);
+  h+=`<details class="day" ${i===0?'open':''}><summary><span>${fmtDay(d)}<br><span class="s">${bd[d].length} treninga · ${Object.keys(perKid).length} djece</span></span><span class="amt">${km(sum(bd[d],e=>e.amount))}</span></summary>`;
+  Object.keys(perKid).sort((a,b)=>child(a).name.localeCompare(child(b).name,'bs')).forEach(cid=>{
+   const l=perKid[cid];
+   h+=`<div class="kidhead"><span>${esc(child(cid).name)}</span><span>${km(sum(l,e=>e.amount))}</span></div>`+l.sort((a,b)=>a.ts-b.ts).map(e=>`<button class="row sub" data-act="edit" data-id="${e.id}"><span class="dot" style="--c:${typeColor(e)}"></span><div class="grow s"><b style="color:var(--ink);font-weight:600">${esc(e.typeName)}</b> · ${hrs(e.hours)} · ${esc(trName(e.trainerId))}</div><span class="s">${km(e.amount)}</span><span class="editlbl">Uredi</span></button>`).join('');
+  });
+  h+=`</details>`;
+ });
+ return h;
+};
+
+/* ---------- IZVJEŠTAJI ---------- */
+V.djeca=()=>{
+ const es=S.entries.filter(e=>e.date.startsWith(month));
+ let h=`<div class="bar"><h2>Izvještaji za roditelje</h2></div><div class="filters"><input type="month" data-change="month" value="${month}"></div>`;
+ h+=`<div class="rows">`+S.children.filter(c=>!c.archived||es.some(e=>e.childId===c.id)).sort(byName).map(c=>{const l=es.filter(e=>e.childId===c.id);
+  return `<button class="row" data-act="report" data-id="${c.id}"><span class="av">${esc(initials(c.name))}</span><div class="grow"><div class="t">${esc(c.name)}</div><div class="s">${l.length?`${l.length} treninga · ${hrs(sum(l,e=>e.hours))}`:'Nema treninga'}</div></div><span class="amt">${km(sum(l,e=>e.amount))}</span>${I.chev}</button>`}).join('')+`</div>`;
+ h+=`<button class="btn" data-act="csv">Preuzmi sve unose za ${monthLabel(month)} (Excel / CSV)</button>`;
+ return h+`<p class="note">Otvorite dijete za detaljan mjesečni izvještaj. Preuzeti fajl je ujedno i vaša kopija podataka.</p>`;
+};
+const childEntries=()=>S.entries.filter(e=>e.childId===reportChild&&e.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
+V.izvjestaj=()=>{
+ const c=child(reportChild),es=childEntries();
+ const kids=S.children.filter(k=>!k.archived||k.id===reportChild).sort(byName),ix=kids.findIndex(k=>k.id===reportChild);
+ let h=`<button class="back" data-act="go" data-v="djeca">${I.left}Svi izvještaji</button>
+ <div class="filters"><input type="month" data-change="month" value="${month}"></div>
+ <div class="report"><div class="rp-club">${esc(CFG.club)}</div><h2>Mjesečni izvještaj o treninzima</h2><div class="muted">Period: ${monthLabel(month)}</div>
+ <div class="rp-meta"><div><span>Dijete</span><b>${esc(c.name)}</b></div><div><span>Roditelj</span><b>${esc(c.parent||'—')}</b></div><div><span>Broj treninga</span><b>${es.length}</b></div><div><span>Ukupno sati</span><b>${hrs(sum(es,e=>e.hours))}</b></div></div>`;
+ if(!es.length){h+=`<div class="empty">Nema evidentiranih treninga u ovom mjesecu.</div></div>`}
+ else{
+  h+=`<table class="tbl"><thead><tr><th>Datum</th><th>Trening</th><th class="r">Sati</th><th class="r">Iznos</th></tr></thead><tbody>`+
+   es.map(e=>`<tr class="tap" data-act="edit" data-id="${e.id}"><td>${fmtDate(e.date).slice(0,6)}</td><td>${esc(e.typeName)}<small>${esc(trName(e.trainerId))} · ${km(e.price)}/h</small></td><td class="r">${num(e.hours)}</td><td class="r">${km(e.amount)}</td></tr>`).join('')+`</tbody></table>`;
+  const bt=groupBy(es,e=>e.typeName);
+  h+=`<h3 style="margin-left:0">Sažetak po vrsti</h3><table class="tbl"><thead><tr><th>Vrsta</th><th class="r">Br.</th><th class="r">Sati</th><th class="r">Iznos</th></tr></thead><tbody>`+
+   Object.keys(bt).map(k=>`<tr><td>${esc(k)}</td><td class="r">${bt[k].length}</td><td class="r">${num(sum(bt[k],e=>e.hours))}</td><td class="r">${km(sum(bt[k],e=>e.amount))}</td></tr>`).join('')+`</tbody></table>`;
+  h+=`<div class="rp-total"><span>Ukupno za ${monthLabel(month)}</span><b>${km(sum(es,e=>e.amount))}</b></div>
+  <div class="rp-foot">Cijene su obračunate prema cjenovniku važećem na dan treninga. Za pitanja u vezi s izvještajem obratite se upravi kluba.</div></div>`;
+ }
+ h+=`${es.length?'<p class="hint" style="text-align:center">Tapnite red u tabeli da izmijenite ili obrišete trening.</p>':''}<button class="btn big ok" data-act="copy">Kopiraj tekst za email roditelju</button>
+ ${c.email?`<p class="hint" style="text-align:center">Email roditelja: ${esc(c.email)}</p>`:''}
+ ${kids.length>1?`<div class="navrow"><button class="btn" data-act="report" data-id="${kids[(ix-1+kids.length)%kids.length].id}">‹ Prethodno</button><button class="btn" data-act="report" data-id="${kids[(ix+1)%kids.length].id}">Sljedeće ›</button></div>`:''}`;
+ return h;
+};
+function reportText(){
+ const c=child(reportChild),es=childEntries();
+ let t=`Poštovani/a ${c.parent||''},\n\nu nastavku je pregled treninga za ${c.name} za period ${monthLabel(month)}.\n\n`;
+ es.forEach(e=>{t+=`${fmtDate(e.date)}  ${e.typeName} – ${hrs(e.hours)} × ${km(e.price)} = ${km(e.amount)}\n`});
+ const bt=groupBy(es,e=>e.typeName);
+ t+=`\nSažetak:\n`;Object.keys(bt).forEach(k=>{t+=`• ${k}: ${bt[k].length} treninga, ${hrs(sum(bt[k],e=>e.hours))}, ${km(sum(bt[k],e=>e.amount))}\n`});
+ t+=`\nUkupno: ${es.length} treninga, ${hrs(sum(es,e=>e.hours))}\nUKUPNO ZA UPLATU: ${km(sum(es,e=>e.amount))}\n\nSrdačan pozdrav,\n${CFG.club}`;
+ return t;
+}
+function downloadCSV(){
+ const es=S.entries.filter(e=>e.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
+ const cell=v=>{v=String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+ const n2=n=>n.toFixed(2).replace('.',',');
+ const rows=[['Datum','Dijete','Roditelj','Email roditelja','Vrsta treninga','Trener','Sati','Cijena po satu (KM)','Iznos (KM)']];
+ es.forEach(e=>{const c=child(e.childId);rows.push([fmtDate(e.date),c.name,c.parent,c.email,e.typeName,trName(e.trainerId),num(e.hours),n2(e.price),n2(e.amount)])});
+ const csv='﻿'+rows.map(r=>r.map(cell).join(';')).join('\r\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+ a.download=`TK-Bosna-treninzi-${month}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+ toast('Fajl preuzet');
+}
+
+/* ---------- POSTAVKE ---------- */
+V.postavke=()=>{
+ const x=(k,id)=>`<button class="xbtn" data-act="rm" data-k="${k}" data-id="${id}" aria-label="Ukloni">✕</button>`;
+ let h=`<h2>Postavke</h2><h3>Prikaz za trenere</h3><div class="rows"><label class="row tgl"><div class="grow"><div class="t">Treneri vide cijene i iznose</div><div class="s">${S.trenerVidiCijene?'Uključeno: treneri vide cijenu po satu i iznos svakog treninga.':'Isključeno: treneri vide samo dijete, vrstu treninga i sate.'}</div></div><input type="checkbox" data-change="prices" ${S.trenerVidiCijene?'checked':''}><span class="sw"></span></label></div>`;
+ h+=`<h3>Vrste treninga i cijene (KM/sat)</h3><div class="rows set">`+active(S.types).map(t=>`<div class="item trow"><span class="dot" style="--c:${t.color}"></span><input data-change="tname" data-id="${t.id}" value="${esc(t.name)}"><input data-change="tprice" data-id="${t.id}" inputmode="decimal" value="${num(t.price)}">${x('types',t.id)}</div>`).join('')+`<button class="addbtn" data-act="tadd">+ Dodaj vrstu treninga</button></div>
+ <p class="hint">Nova cijena važi samo za nove unose. Već uneseni treninzi zadržavaju cijenu s kojom su sačuvani (pojedinačni trening možete urediti u Pregledu).</p>`;
+ h+=`<h3>Djeca (${active(S.children).length})</h3><div class="rows set">`+active(S.children).sort(byName).map(c=>`<div class="item"><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div></div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button></div>`;
+ h+=`<h3>Treneri i uprava</h3><div class="rows set">`+active(S.trainers).map(t=>`<div class="item trow" style="grid-template-columns:1fr auto auto"><input data-change="rname" data-id="${t.id}" value="${esc(t.name)}"><span class="hint" style="margin:0">${t.role==='direktor'?'direktor':'trener'}</span>${t.id===me.id?'<span></span>':x('trainers',t.id)}</div>`).join('')+`<button class="addbtn" data-act="radd">+ Dodaj trenera</button></div>`;
+ const arch=[...S.types.filter(t=>t.archived).map(t=>['types',t.id,t.name,'Vrsta treninga']),...S.children.filter(t=>t.archived).map(t=>['children',t.id,t.name,'Dijete']),...S.trainers.filter(t=>t.archived).map(t=>['trainers',t.id,t.name,'Trener (nema pristup)'])];
+ if(arch.length)h+=`<h3>Uklonjeno (ostaje u starim unosima)</h3><div class="rows">`+arch.map(a=>`<div class="row"><div class="grow"><div class="t">${esc(a[2])}</div><div class="s">${a[3]}</div></div><button class="xbtn" style="color:var(--brand)" data-act="restore" data-k="${a[0]}" data-id="${a[1]}">Vrati</button></div>`).join('')+`</div>`;
+ return h;
+};
+const TBL={types:['vrste_treninga','aktivno'],children:['djeca','aktivno'],trainers:['profili','aktivan']};
+const LIST={types:()=>S.types,children:()=>S.children,trainers:()=>S.trainers};
+
+/* ---------- uređivanje treninga (direktor) ---------- */
+function editSheet(){
+ const types=S.types.filter(t=>!t.archived||t.id===E.typeId);
+ const kids=S.children.filter(c=>!c.archived||c.id===E.childId).sort(byName);
+ const trs=S.trainers.filter(t=>!t.archived||t.id===E.trainerId);
+ const hs=HOURS.includes(E.hours)?HOURS:[...HOURS,E.hours].sort((a,b)=>a-b);
+ openSheet(`<p class="sh-title">Uredi trening</p><div class="ef">
+  <label>Dijete<select data-change="e_child">${kids.map(c=>`<option value="${c.id}" ${c.id===E.childId?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>
+  <label>Vrsta treninga<select data-change="e_type">${types.map(t=>`<option value="${t.id}" ${t.id===E.typeId?'selected':''}>${esc(t.name)}</option>`).join('')}${type(E.typeId)?'':`<option selected value="">${esc(E.typeName)}</option>`}</select></label>
+  <label>Broj sati</label><div class="hpick">${hs.map(x=>`<button class="${x===E.hours?'on':''}" data-act="e_h" data-h="${x}">${num(x)}</button>`).join('')}</div>
+  <div class="g2"><label style="margin-top:4px">Cijena po satu (KM)<input data-change="e_price" inputmode="decimal" value="${num(E.price)}"></label><label style="margin-top:4px">Datum<input type="date" data-change="e_date" value="${E.date}"></label></div>
+  <label>Trener<select data-change="e_tr">${trs.map(t=>`<option value="${t.id}" ${t.id===E.trainerId?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label>
+ </div>
+ <div class="cf-total"><span>Iznos</span><b>${km(r2(E.hours*E.price))}</b></div>
+ <button class="btn big ok" data-act="e_save">Sačuvaj izmjene</button>
+ <button class="btn danger" data-act="e_del">Obriši ovaj trening</button>
+ <button class="btn ghost" data-act="close">Odustani</button>`);
+}
+
+/* ---------- sheet, toast ---------- */
+function openSheet(html){$('#sheet').innerHTML=`<div class="sheet-bg" data-act="bg"><div class="sheet">${html}</div></div>`}
+function closeSheet(){$('#sheet').innerHTML=''}
+let pending=null;
+function ask(title,text,okLabel,fn){pending=fn;openSheet(`<p class="sh-title">${title}</p><p class="muted">${text}</p><button class="btn big ok" data-act="yes" style="background:var(--danger);border-color:var(--danger)">${okLabel}</button><button class="btn ghost" data-act="close">Odustani</button>`)}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+function acctSheet(){
+ openSheet(`<p class="sh-title">${esc(me.name)}</p><p class="muted" style="margin-top:0">${isDir()?'Direktor · pristup svim podacima':'Trener · unos i pregled vlastitih treninga'}</p>
+ <button class="btn" data-act="reloadall">Osvježi podatke</button>
+ <button class="btn danger" data-act="logout">Odjavi se</button>
+ <button class="btn ghost" data-act="close">Zatvori</button>`);
+}
+async function guard(el,fn,label){
+ if(busy)return;busy=true;const old=el&&el.textContent;if(el){el.disabled=true;if(label)el.textContent=label}
+ try{await fn()}catch(e){toast(errText(e));if(el&&document.body.contains(el)){el.disabled=false;el.textContent=old}}finally{busy=false}
+}
+function replaceEntry(row){const e=mapE(row);const i=S.entries.findIndex(x=>x.id===e.id);
+ if(!e.date.startsWith(month)){if(i>=0)S.entries.splice(i,1)}else if(i>=0)S.entries[i]=e;else S.entries.push(e);return e}
+async function deleteEntry(id){
+ const d=await q(sb.from('treninzi').delete().eq('id',id).select('id'));
+ if(!d||!d.length)throw new Error('0 rows');
+ S.entries=S.entries.filter(x=>x.id!==id);
+}
+
+/* ---------- akcije ---------- */
+const A={
+ go:d=>{view=d.v;if(view==='unos'&&W.step===5)W={step:1};render(true);if(view!=='unos'&&view!=='postavke')refresh()},
+ reload:(d,el)=>guard(el,async()=>{await loadMonth(true);render();toast('Podaci osvježeni')},'Osvježavam…'),
+ reloadall:(d,el)=>guard(el,async()=>{await loadBase();await loadMonth(true);closeSheet();render();toast('Podaci osvježeni')},'Osvježavam…'),
+ rolesheet:()=>acctSheet(),
+ logout:async()=>{closeSheet();await sb.auth.signOut();S.entries=[];loadedMonth=null;showLogin()},
+ bg:(d,el,e)=>{if(e.target===el)closeSheet()},
+ close:()=>closeSheet(),
+ yes:()=>{const f=pending;pending=null;closeSheet();f&&f()},
+ child:d=>{W={step:2,childId:d.id};render(true)},
+ type:d=>{W.typeId=d.id;W.step=3;render(true)},
+ hours:d=>{W.hours=parseFloat(d.h);W.date=W.date||today();W.step=4;render(true)},
+ step:d=>{W.step=+d.s;if(W.step===1)W={step:1};render(true)},
+ save:(d,el)=>guard(el,async()=>{
+   const row={datum:W.date||today(),dijete_id:W.childId,vrsta_id:W.typeId,sati:W.hours};
+   if(isDir())row.trener_id=me.id;
+   const ins=await q(sb.from('treninzi').insert(row).select('id').single());
+   const e=mapE(await fetchEntry(ins.id));if(e.date.startsWith(month)&&!S.entries.some(x=>x.id===e.id))S.entries.push(e);
+   W={step:5,childId:W.childId,last:e,date:W.date};render(true);toast('Trening sačuvan');
+ },'Spremam…'),
+ again:()=>{W={step:2,childId:W.childId,date:W.date};render(true)},
+ undo:()=>{const id=W.last.id;ask('Poništiti unos?','Ovaj trening će biti uklonjen.','Poništi unos',()=>guard(null,async()=>{await deleteEntry(id);W={step:2,childId:W.childId};render(true);toast('Unos poništen')}))},
+ del:d=>{const e=S.entries.find(x=>x.id===d.id);if(!e)return;ask('Poništiti unos?',`${esc(child(e.childId).name)} · ${esc(e.typeName)} · ${hrs(e.hours)}${SP()?' · '+km(e.amount):''}`,'Poništi unos',()=>guard(null,async()=>{await deleteEntry(d.id);render();toast('Unos poništen')}))},
+ report:d=>{reportChild=d.id;view='izvjestaj';render(true)},
+ copy:async()=>{const t=reportText();try{await navigator.clipboard.writeText(t);toast('Kopirano – zalijepite u email')}catch(e){openSheet(`<p class="sh-title">Kopirajte tekst</p><textarea readonly style="width:100%;height:55vh;font:inherit;font-size:14px;border:1px solid var(--line);border-radius:12px;padding:10px">${esc(t)}</textarea><button class="btn" data-act="close">Zatvori</button>`)}},
+ csv:()=>downloadCSV(),
+ edit:d=>{if(!isDir())return;const e=S.entries.find(x=>x.id===d.id);if(!e)return;E={...e};editSheet()},
+ e_h:d=>{E.hours=parseFloat(d.h);editSheet()},
+ e_save:(d,el)=>guard(el,async()=>{
+   await q(sb.from('treninzi').update({dijete_id:E.childId,vrsta_id:E.typeId||null,sati:E.hours,cijena_po_satu:E.price,datum:E.date,trener_id:E.trainerId}).eq('id',E.id).select('id').single());
+   replaceEntry(await fetchEntry(E.id));closeSheet();render();toast('Izmjene sačuvane');
+ },'Spremam…'),
+ e_del:()=>{const id=E.id;ask('Obrisati trening?',`${esc(child(E.childId).name)} · ${esc(E.typeName)} · ${hrs(E.hours)} · ${km(r2(E.hours*E.price))}`,'Obriši trening',()=>guard(null,async()=>{await deleteEntry(id);render();toast('Trening obrisan')}))},
+ tadd:(d,el)=>guard(el,async()=>{await q(sb.from('vrste_treninga').insert({naziv:'Nova vrsta',cijena_po_satu:20,boja:COLORS[S.types.length%COLORS.length],redoslijed:S.types.length+1}).select('id').single());S.types=(await q(sb.rpc('vrste_lista'))).map(mapT);render()}),
+ cadd:(d,el)=>guard(el,async()=>{const r=await q(sb.from('djeca').insert({ime:'Novo dijete'}).select('*').single());S.children.push(mapC(r));render()}),
+ radd:()=>openSheet(`<p class="sh-title">Novi trener</p><p class="muted">Pristup za trenera pravite u Supabaseu, jer tamo nastaje njegova prijava:</p>
+  <ol style="padding-left:20px;line-height:1.6;margin:8px 0 14px"><li>Supabase → <b>Authentication → Users → Add user → Create new user</b></li><li>Upišite email i lozinku, uključite <b>Auto Confirm User</b></li><li>Ovdje tapnite <b>Osvježi podatke</b> (gornji desni ugao) i trener se pojavljuje u listi. Ime mu promijenite ovdje.</li></ol>
+  <p class="muted">Email i lozinku trener koristi za prijavu u ovu aplikaciju.</p><button class="btn" data-act="close">Razumijem</button>`),
+ rm:d=>{const it=LIST[d.k]().find(x=>x.id===d.id);if(!it)return;
+   const what={types:'vrstu treninga',children:'dijete',trainers:'trenera'}[d.k];
+   const txt=d.k==='trainers'?`<b>${esc(it.name)}</b> se više neće moći prijaviti u aplikaciju. Njegovi stari unosi i izvještaji ostaju. Možete ga vratiti iz dijela „Uklonjeno“.`
+     :`<b>${esc(it.name)}</b> se uklanja iz izbora za nove unose. Stari unosi i izvještaji ostaju netaknuti. Možete vratiti iz dijela „Uklonjeno“.`;
+   ask(`Ukloniti ${what}?`,txt,'Ukloni',()=>guard(null,async()=>{await q(sb.from(TBL[d.k][0]).update({[TBL[d.k][1]]:false}).eq('id',d.id).select('id').single());it.archived=true;render();toast('Uklonjeno')}))},
+ restore:(d,el)=>guard(el,async()=>{const it=LIST[d.k]().find(x=>x.id===d.id);await q(sb.from(TBL[d.k][0]).update({[TBL[d.k][1]]:true}).eq('id',d.id).select('id').single());it.archived=false;render();toast('Vraćeno')})
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=A[el.dataset.act];if(f)f(el.dataset,el,e)});
+
+async function upd(table,id,obj,okMsg){try{await q(sb.from(table).update(obj).eq('id',id).select('id').single());if(okMsg)toast(okMsg)}catch(e){toast(errText(e));await refresh(true)}}
+const C={
+ month:async t=>{if(!t.value)return;month=t.value;render();try{await loadMonth(true);render()}catch(e){toast(errText(e))}},
+ tr:t=>{trFilter=t.value;render()},
+ dt:t=>{if(t.value)W.date=t.value},
+ tname:t=>{const x=type(t.dataset.id);const v=t.value.trim();if(x&&v){x.name=v;upd('vrste_treninga',x.id,{naziv:v},'Sačuvano')}else if(x)t.value=x.name},
+ tprice:t=>{const x=type(t.dataset.id);const p=parseFloat(t.value.replace(',','.'));if(x&&p>=0){x.price=r2(p);t.value=num(x.price);upd('vrste_treninga',x.id,{cijena_po_satu:x.price},'Cijena sačuvana')}else if(x)t.value=num(x.price)},
+ cname:t=>{const c=S.children.find(c=>c.id===t.dataset.id);const v=t.value.trim();if(c&&v){c.name=v;upd('djeca',c.id,{ime:v},'Sačuvano')}else if(c)t.value=c.name},
+ cparent:t=>{const c=S.children.find(c=>c.id===t.dataset.id);if(c){c.parent=t.value.trim();upd('djeca',c.id,{roditelj:c.parent||null},'Sačuvano')}},
+ cemail:t=>{const c=S.children.find(c=>c.id===t.dataset.id);if(c){c.email=t.value.trim();upd('djeca',c.id,{email_roditelja:c.email||null},'Sačuvano')}},
+ rname:t=>{const r=S.trainers.find(r=>r.id===t.dataset.id);const v=t.value.trim();if(r&&v){r.name=v;if(r.id===me.id){me.name=v;$('#who').textContent=v}upd('profili',r.id,{ime:v},'Sačuvano')}else if(r)t.value=r.name},
+ prices:async t=>{const v=t.checked;try{await q(sb.from('postavke').update({treneri_vide_cijene:v}).eq('id',1).select('id').single());S.trenerVidiCijene=v;render();toast(v?'Treneri sada vide cijene':'Cijene su sakrivene od trenera')}catch(e){t.checked=!v;toast(errText(e))}},
+ e_child:t=>{E.childId=t.value},
+ e_type:t=>{const x=type(t.value);if(x){E.typeId=x.id;E.typeName=x.name;E.price=x.price;editSheet()}},
+ e_price:t=>{const p=parseFloat(t.value.replace(',','.'));if(p>=0)E.price=r2(p);editSheet()},
+ e_date:t=>{if(t.value)E.date=t.value},
+ e_tr:t=>{E.trainerId=t.value}
+};
+document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.change;if(k&&C[k])C[k](e.target)});
+document.addEventListener('input',e=>{if(e.target.id==='q'){const v=e.target.value.trim().toLowerCase();document.querySelectorAll('.kid').forEach(b=>b.style.display=b.dataset.n.includes(v)?'':'none')}});
+
+/* ---------- start ---------- */
+(async function(){
+ if(!sb){$('#main').innerHTML='<div class="empty">Aplikacija se ne može učitati. Provjerite internet vezu i osvježite stranicu.</div>';return}
+ showLoading();
+ sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_OUT'&&me)showLogin()});
+ try{
+  const{data:{session}}=await sb.auth.getSession();
+  if(session&&session.user)afterLogin(session.user);else showLogin();
+ }catch(e){showLogin(errText(e))}
+})();
+
+</script>
+</body>
+</html>
