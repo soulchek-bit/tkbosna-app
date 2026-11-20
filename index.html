@@ -279,6 +279,10 @@ body{min-height:calc(100vh + env(safe-area-inset-top))}
 .ue{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--muted)}
 .ubtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:none;max-width:58%}
 .uhid{opacity:.7}
+.ugrp{padding:10px 14px 6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#f6f7f3;border-bottom:1px solid var(--line)}
+.urow2{padding:10px 14px 12px;border-bottom:1px solid var(--line)}.urow2 .t{font-weight:600}
+.ue2{font-size:13px;color:var(--muted);overflow-wrap:anywhere;margin-top:1px}
+.ubar{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:5px;margin-top:8px}.ubar>*{min-width:0;width:100%;max-width:none!important;height:36px;padding:0 4px!important;font-size:13px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .login label{margin-top:14px}
 .login input{margin-top:6px}
 /* kompaktna potvrda: dugme uvijek vidljivo iznad donje trake */
@@ -867,15 +871,16 @@ V.postavke=()=>{
  h+=sec('postavke','trajanja','Ponuđena trajanja („Koliko sati?“)',DUR().length+'',()=>`<div class="rows" style="padding:12px"><div class="durs">${DUR().map((v,i)=>`<span class="dchip"><button data-act="dedit" data-i="${i}">${durText(v)}</button><button class="dx" data-act="ddel" data-i="${i}" aria-label="Obriši">✕</button></span>`).join('')}</div>
   <button class="btn" data-act="dadd">+ Dodaj trajanje</button></div><p class="hint">Tap na trajanje ga mijenja. Opcije se same poredaju od najkraćeg do najdužeg. Već uneseni treninzi se ne mijenjaju.</p>`);
  h+=sec('postavke','djeca','Djeca',active(S.children).length+'',()=>`<input id="cq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" style="margin-bottom:10px"><div class="rows set">`+active(S.children).sort(byName).map(c=>OPENKID!==c.id?`<button class="row ckrow citem" data-act="kidopen" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><div class="grow t">${esc(c.name)}</div><span class="cic ${c.email?'on':''}">${CH.email.ic}</span><span class="cic ${c.phone?'on':''}"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>${I.chev}</button>`:`<div class="item citem kidopen" data-n="${esc(c.name.toLowerCase())}"><button class="row ckrow ckhead" data-act="kidopen" data-id="${c.id}"><div class="grow t">${esc(c.name)}</div><span class="acc-i" style="transform:rotate(90deg)">${I.chev}</span></button><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div><div class="g2"><label>Telefon roditelja<input data-change="cphone" data-id="${c.id}" type="tel" inputmode="tel" placeholder="061 123 456" value="${esc(c.phone)}"></label><label>Mjesečna uplata (KM)<input data-change="cfee" data-id="${c.id}" type="text" inputmode="decimal" placeholder="npr. 50" value="${S.fee&&S.fee[c.id]!=null?num(S.fee[c.id]):''}"></label></div>${chanRow(c,'chtog')}</div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button><button class="addbtn" data-act="imp" style="border-top:1px solid var(--line)">⇪ Uvezi djecu iz Excela / Google Sheets</button></div>`);
- h+=sec('postavke','treneri','Treneri i uprava',active(S.trainers).length+'',()=>`<div class="rows set">`+active(S.trainers).map(t=>`<div class="item"><div class="trow" style="grid-template-columns:1fr auto auto"><input data-change="rname" data-id="${t.id}" value="${esc(t.name)}"><button class="xbtn" style="color:var(--brand)" data-act="rpass" data-id="${t.id}">Lozinka</button>${t.id===me.id?'<span></span>':x('trainers',t.id)}</div><div class="hint" style="margin:6px 2px 0">${t.role==='superadmin'?'Superadmin':t.role==='direktor'?'Direktor':'Trener'}${t.email?' · '+esc(t.email):''}</div></div>`).join('')+`<button class="addbtn" data-act="radd">+ Dodaj trenera</button></div>`);
+ const staff=active(S.trainers).filter(t=>t.role!=='superadmin');
+ h+=sec('postavke','treneri','Treneri i uprava',staff.length+'',()=>`<div class="rows set">`+staff.map(t=>`<div class="item"><div class="trow" style="grid-template-columns:1fr auto auto"><input data-change="rname" data-id="${t.id}" value="${esc(t.name)}"><button class="xbtn" style="color:var(--brand)" data-act="rpass" data-id="${t.id}">Lozinka</button>${t.id===me.id?'<span></span>':`<button class="xbtn" style="color:var(--danger)" data-act="uact" data-id="${t.id}">Blokiraj</button>`}</div><div class="hint" style="margin:6px 2px 0">${t.role==='superadmin'?'Superadmin':t.role==='direktor'?'Direktor':'Trener'}${t.email?' · '+esc(t.email):''}</div></div>`).join('')+`<button class="addbtn" data-act="radd">+ Dodaj trenera</button></div>`);
  h+=sec('postavke','poruka','Poruka roditeljima','',()=>`<div class="rows set"><div class="item">
   <label>Naslov (za email)<input data-change="msg" data-f="naslov" value="${esc(S.msg.naslov)}"></label>
   <label style="margin-top:10px">Uvod – ide prije spiska treninga<textarea data-change="msg" data-f="uvod" rows="3">${esc(S.msg.uvod)}</textarea></label>
   <label style="margin-top:10px">Završetak – ide poslije ukupnog iznosa<textarea data-change="msg" data-f="zavrsetak" rows="4">${esc(S.msg.zavrsetak)}</textarea></label>
   <p class="hint" style="margin:8px 0 0">Oznake koje se same zamijene: {roditelj}, {dijete}, {mjesec}, {iznos}, {broj_treninga}, {sati}</p>
   <button class="btn" data-act="preview">Pogledaj primjer poruke</button></div></div>`);
- const arch=[...S.types.filter(t=>t.archived).map(t=>['types',t.id,t.name,'Vrsta treninga']),...S.children.filter(t=>t.archived).map(t=>['children',t.id,t.name,'Dijete']),...S.trainers.filter(t=>t.archived&&!t.hidden).map(t=>['trainers',t.id,t.name,'Trener (nema pristup)'])];
- if(arch.length)h+=sec('postavke','uklonjeno','Uklonjeno',arch.length+'',()=>`<div class="rows">`+arch.map(a=>`<div class="row"><div class="grow"><div class="t">${esc(a[2])}</div><div class="s">${a[3]}</div></div><button class="xbtn" style="color:var(--brand)" data-act="restore" data-k="${a[0]}" data-id="${a[1]}">Vrati</button></div>`).join('')+`</div><p class="hint">Uklonjeno ostaje u starim unosima i izvještajima.</p>`);
+ const arch=[...S.types.filter(t=>t.archived).map(t=>['types',t.id,t.name,'Vrsta treninga']),...S.children.filter(t=>t.archived).map(t=>['children',t.id,t.name,'Dijete']),...S.trainers.filter(t=>t.archived&&!t.hidden&&t.role!=='superadmin').map(t=>['trainers',t.id,t.name,(t.role==='direktor'?'Direktor':'Trener')+' · blokiran (nema pristup)'])];
+ if(arch.length)h+=sec('postavke','uklonjeno','Uklonjeno',arch.length+'',()=>`<div class="rows">`+arch.map(a=>`<div class="row"><div class="grow"><div class="t">${esc(a[2])}</div><div class="s">${a[3]}</div></div>${a[0]==='trainers'?`<button class="xbtn" style="color:var(--brand)" data-act="uact" data-id="${a[1]}">Odobri</button>`:`<button class="xbtn" style="color:var(--brand)" data-act="restore" data-k="${a[0]}" data-id="${a[1]}">Vrati</button>`}</div>`).join('')+`</div><p class="hint">Uklonjeno ostaje u starim unosima i izvještajima.</p>`);
  return h;
 };
 function durSheet(i){const v=i==null?1:DUR()[i];const m=Math.round(v*60),hh=Math.floor(m/60),mm=m%60;
@@ -932,13 +937,14 @@ V.admin=()=>{
    const last=l.map(e=>e.date).sort().pop();
    return `<button class="row" data-act="report" data-id="${x.id}"><div class="grow"><div class="t">${esc(child(x.id).name)}</div><div class="s">${l.length} tren. ${pes?`<span class="dl ${d>0?'up':d<0?'dn':''}">${d>0?'▲'+d:d<0?'▼'+(-d):'='}</span>`:''} · ${hrs(sum(l,e=>e.hours))} · zadnji ${fmtDate(last).slice(0,6)}<br>${esc(trs)}</div></div><span class="amt">${km(sum(l,e=>e.amount))}</span>${I.chev}</button>`}).join(''):`<div class="row"><div class="grow s">Nema treninga u ${monthLabel(month)}.</div></div>`}</div>
  <p class="hint">${Object.keys(bc).length} djece · ${es.length} treninga · ${km(sum(es,e=>e.amount))}. Strelice: razlika u broju treninga u odnosu na ${monthLabel(pm)}.</p>`);
- const allU=S.trainers.filter(u=>u.role!=='superadmin').sort(byName),users=allU.filter(u=>!u.hidden||ADM.showHidden),hid=allU.filter(u=>u.hidden).length;
- const cntU=id=>(ADM.uc&&ADM.uc[id])||0;
- h+=sec('admin','korisnici','Korisnici i uloge',allU.filter(u=>!u.hidden).length+(allU.some(u=>u.archived&&!u.hidden)?` · <span style="color:var(--danger)">${allU.filter(u=>u.archived&&!u.hidden).length} neaktivno</span>`:''),()=>`<div class="rows">${users.map(u=>`<div class="urow ${u.hidden?'uhid':''}"><div class="uinfo"><div class="t">${esc(u.name)}${u.hidden?' <span class="tag" style="background:var(--line);color:var(--muted)">sakriven</span>':u.archived?' <span class="tag">neaktivan</span>':''}</div><div class="s ue">${esc(u.email||'')}</div></div>
-   <div class="ubtns">${u.hidden?`<button class="xbtn" style="color:var(--brand)" data-act="uunhide" data-id="${u.id}">Vrati</button>`:`<select data-change="role" data-id="${u.id}" class="rsel"><option value="trener" ${u.role==='trener'?'selected':''}>Trener</option><option value="direktor" ${u.role==='direktor'?'selected':''}>Direktor</option></select>
-   <button class="xbtn" style="color:${u.archived?'var(--brand)':'var(--danger)'}" data-act="uact" data-id="${u.id}">${u.archived?'Odobri':'Blokiraj'}</button>
-   ${ADM.uc?(cntU(u.id)?`<button class="xbtn" data-act="uhide" data-id="${u.id}">Sakrij</button>`:`<button class="xbtn" style="color:var(--danger)" data-act="udel" data-id="${u.id}">Obriši</button>`):''}`}</div></div>`).join('')||'<div class="row"><div class="grow s">Nema drugih korisnika.</div></div>'}</div>
- <p class="hint">„Obriši“ potpuno briše korisnika bez ijednog unosa. Korisnik s unosima se može samo „Sakriti“ – nestaje sa svih lista, a njegovi stari treninzi ostaju.</p>
+ const ROLE={superadmin:'Admin',direktor:'Direktor',trener:'Trener'};
+ const urow=u=>`<div class="urow2 ${u.hidden?'uhid':''}"><div class="t">${esc(u.name)}${u.id===me.id?' <span class="s">(vi)</span>':''}${u.hidden?' <span class="tag" style="background:var(--line);color:var(--muted)">sakriven</span>':u.archived?' <span class="tag">blokiran</span>':''}</div><div class="s ue2">${esc(u.email||'')}</div>
+  <div class="ubar">${u.role==='superadmin'?`<button class="xbtn" style="color:var(--brand)" data-act="rpass" data-id="${u.id}">Lozinka</button>`:u.hidden?`<button class="xbtn" style="color:var(--brand)" data-act="uunhide" data-id="${u.id}">Vrati</button>`:`<select data-change="role" data-id="${u.id}" class="rsel"><option value="trener" ${u.role==='trener'?'selected':''}>Trener</option><option value="direktor" ${u.role==='direktor'?'selected':''}>Direktor</option></select><button class="xbtn" style="color:var(--brand)" data-act="rpass" data-id="${u.id}">Lozinka</button><button class="xbtn" style="color:${u.archived?'var(--brand)':'var(--danger)'}" data-act="uact" data-id="${u.id}">${u.archived?'Odobri':'Blokiraj'}</button>${ADM.uc?(cntU(u.id)?`<button class="xbtn" data-act="uhide" data-id="${u.id}">Sakrij</button>`:`<button class="xbtn" style="color:var(--danger)" data-act="udel" data-id="${u.id}">Obriši</button>`):''}`}</div></div>`;
+ const allU=S.trainers.slice().sort(byName),vis=allU.filter(u=>!u.hidden||ADM.showHidden),hid=allU.filter(u=>u.hidden).length,cntU=id=>(ADM.uc&&ADM.uc[id])||0;
+ const grp=(t,l)=>l.length?`<div class="ugrp">${t} · ${l.length}</div>${l.map(urow).join('')}`:'';
+ const staffN=allU.filter(u=>u.role!=='superadmin'&&!u.hidden),blk=staffN.filter(u=>u.archived).length;
+ h+=sec('admin','korisnici','Korisnici',staffN.length+(blk?` · <span style="color:var(--danger)">${blk} blokirano</span>`:''),()=>`<div class="rows">${grp('Admini',vis.filter(u=>u.role==='superadmin'))}${grp('Direktori',vis.filter(u=>u.role==='direktor'))}${grp('Treneri',vis.filter(u=>u.role==='trener'))}<button class="addbtn" data-act="radd">+ Dodaj korisnika</button></div>
+ <p class="hint">„Blokiraj“ privremeno zabranjuje prijavu. „Obriši“ trajno briše korisnika bez ijednog unosa. Korisnik s unosima se može samo „Sakriti“ – nestaje sa svih lista, a njegovi stari treninzi ostaju u izvještajima.</p>
  ${hid?`<button class="btn" data-act="ushowhid">${ADM.showHidden?'Ne prikazuj sakrivene':`Prikaži sakrivene (${hid})`}</button>`:''}`);
  const tdy=sarDate(Date.now()),tb=ADM.backups.find(b=>sarDate(b.kreirano)===tdy);
  h+=sec('admin','backup','Backup',ADM.backups.length?('zadnji '+fmtTs(ADM.backups[0].kreirano)):'nema',()=>`<div class="rows"><div style="padding:14px 14px 4px"><button class="btn big ok" style="margin-top:0" data-act="bkp">Napravi backup i preuzmi</button>
@@ -1156,7 +1162,7 @@ const A={
    confirmYN(ADM.obim==='treninzi'?'Da li stvarno želite obrisati sve treninge i radno vrijeme?':'Da li stvarno želite obrisati SVE podatke?','Ovo se može vratiti samo iz backupa.',()=>guard(null,async()=>{
    const r=await q(sb.rpc('nuliraj',{p_obim:ADM.obim,p_potvrda:'NULIRAJ'}));await afterDataChange();toast(`Nulirano: obrisano ${r.obrisano_treninga} treninga`)}),true)},
  uact:d=>{const u=S.trainers.find(x=>x.id===d.id);if(!u)return;const on=u.archived;
-   confirmYN(on?`Odobriti pristup za ${esc(u.name)}?`:`Blokirati pristup za ${esc(u.name)}?`,'',()=>guard(null,async()=>{await q(sb.from('profili').update({aktivan:on}).eq('id',u.id).select('id').single());u.archived=!on;render();toast(on?'Pristup odobren':'Pristup blokiran')}),!on)},
+   confirmYN(on?`Odobriti pristup za ${esc(u.name)}?`:`Blokirati pristup za ${esc(u.name)}?`,on?'':'Više se neće moći prijaviti. Stari unosi i izvještaji ostaju. Pristup možete vratiti dugmetom „Odobri“.',()=>guard(null,async()=>{await q(sb.from('profili').update({aktivan:on}).eq('id',u.id).select('id').single());u.archived=!on;render();toast(on?'Pristup odobren':'Pristup blokiran')}),!on)},
  imp:()=>{IMP=null;impSheet()},
  imptpl:()=>{const csv='\ufeff'+['Ime;Prezime;Ime roditelja;Email;Telefon','Amar;Hodžić;Selma Hodžić;selma@primjer.ba;061 123 456'].join('\r\n');
    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='predlozak-djeca.csv';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000)},
@@ -1172,17 +1178,20 @@ const A={
  preview:()=>{const kid=S.children.find(c=>S.entries.some(e=>e.childId===c.id&&e.date.startsWith(month)))||S.children[0];
    if(!kid)return toast('Dodajte bar jedno dijete');const old=reportChild;reportChild=kid.id;const subj=reportSubject(),txt=reportText();reportChild=old;
    openSheet(`<p class="sh-title">Primjer poruke</p><p class="muted" style="margin-top:0">Za: ${esc(kid.name)} · ${monthLabel(month)}</p><div class="pv"><b>${esc(subj)}</b>\n\n${esc(txt)}</div><button class="btn" data-act="close">Zatvori</button>`)},
- radd:()=>openSheet(`<p class="sh-title">Novi trener</p><div class="ef">
+ radd:()=>openSheet(`<p class="sh-title">${isSuper()?'Novi korisnik':'Novi trener'}</p><div class="ef">${isSuper()?`<label>Uloga<select id="nt_role"><option value="trener">Trener</option><option value="direktor">Direktor</option></select></label>`:''}
   <label>Ime i prezime<input id="nt_ime" autocomplete="off"></label>
   <label>Email (za prijavu)<input id="nt_email" type="email" inputmode="email" autocapitalize="off" autocomplete="off"></label>
   <label>Početna lozinka<input id="nt_pass" value="${genPass()}" autocomplete="off" autocapitalize="off"></label></div>
   <p class="hint" style="margin:8px 0 0">Lozinku trener kasnije može dobiti novu od vas (dugme „Lozinka“).</p>
-  <button class="btn big ok" data-act="raddsave">Dodaj trenera</button><button class="btn ghost" data-act="close">Odustani</button>`),
+  <button class="btn big ok" data-act="raddsave">Dodaj</button><button class="btn ghost" data-act="close">Odustani</button>`),
  raddsave:(d,el)=>guard(el,async()=>{
    const ime=$('#nt_ime').value.trim(),email=$('#nt_email').value.trim(),lozinka=$('#nt_pass').value;
    if(!ime||!email)return toast('Upišite ime i email');
-   await callFn({akcija:'dodaj',ime,email,lozinka});
-   await loadBase();render();credSheet(ime,email,lozinka,'Trener je dodan');
+   const uloga=isSuper()&&$('#nt_role')?$('#nt_role').value:'trener';
+   const r=await callFn({akcija:'dodaj',ime,email,lozinka});
+   if(uloga==='direktor'){let id=r&&(r.id||(r.korisnik&&r.korisnik.id));if(!id){const p=await q(sb.from('profili').select('id').eq('email',email).maybeSingle());id=p&&p.id}
+     if(id)await q(sb.from('profili').update({uloga:'direktor'}).eq('id',id).select('id').single())}
+   if(ADM.uc)ADM.uc=null;await loadBase();if(view==='admin')await admLoad().catch(()=>{});render();credSheet(ime,email,lozinka,uloga==='direktor'?'Direktor je dodan':'Trener je dodan');
  },'Dodajem…'),
  rpass:d=>{const t=S.trainers.find(x=>x.id===d.id);if(!t)return;openSheet(`<p class="sh-title">Nova lozinka</p><p class="muted" style="margin-top:0">${esc(t.name)}${t.email?' · '+esc(t.email):''}</p>
   <div class="ef"><label>Nova lozinka<input id="np_pass" value="${genPass()}" autocomplete="off" autocapitalize="off"></label></div>
