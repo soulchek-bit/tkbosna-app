@@ -37,7 +37,7 @@ h2{font-size:21px;margin:6px 0 12px;letter-spacing:-.01em}
 .kids{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .kid{display:flex;align-items:center;gap:10px;padding:12px;border-radius:var(--r);border:1px solid var(--line);background:#fff;font:inherit;text-align:left;min-height:66px;color:var(--ink)}
 .kid:active,.type:active,.hr:active,button.row:active{transform:scale(.98);background:var(--brand2)}
-.av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--brand2);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:14px}
+.av{flex:none;width:40px;height:40px;border-radius:50%;text-align:center;line-height:1;background:var(--brand2);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:14px}
 .kn{font-weight:600;font-size:15px;line-height:1.2}
 .types{display:grid;gap:10px}
 .type{display:flex;justify-content:space-between;align-items:center;padding:18px 16px;border-radius:var(--r);border:1px solid var(--line);border-left:7px solid var(--c);background:#fff;font:inherit;text-align:left;min-height:70px;color:var(--ink)}
@@ -255,13 +255,19 @@ body{min-height:calc(100vh + env(safe-area-inset-top))}
 .pseg .s-dj{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 10px 5px rgba(31,168,85,.7)}
 .pseg .s-pl{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 18px 16px rgba(31,168,85,.8)}
 .pseg .sg.on{outline:2px solid var(--ink);outline-offset:2px}
-.av.g1{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 10px 5px rgba(31,168,85,.7)}
-.av.g2{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 14px 12px rgba(31,168,85,.8)}
+.av.pg1{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 10px 5px rgba(31,168,85,.7)}
+.av.pg2{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 14px 12px rgba(31,168,85,.8)}
 .paybtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:12px}
 .pay{min-height:53px;border-radius:var(--r);border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:inherit;color:var(--ink);padding:6px}
 .pay b{font-size:14.5px}.pay span{font-size:12px;color:var(--muted)}
 .pay.on{background:#e3f7ea;border-color:#1fa855;color:#0f6b38;box-shadow:inset 0 0 0 2px #1fa855,inset 0 0 12px 6px rgba(31,168,85,.55)}
 .pay.on span{color:#0f6b38;font-weight:600}
+.sumb{min-height:53px;border-radius:var(--r);border:1px dashed var(--line);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:inherit;color:var(--muted);padding:6px}
+.sumb span{font-size:12px}.sumb b{font-size:15px;font-weight:700}
+.sumb.on{background:#fff;border:1px solid var(--ink);box-shadow:inset 0 0 0 1px var(--ink);color:var(--ink)}
+.sumb.none b{font-size:13px;font-weight:500;color:var(--muted)}
+.tbl+.rp-sub{margin-top:14px}.rp-sub+.rp-total{margin-top:8px}
+.rp-sub{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);padding:2px 2px}.rp-sub b{color:var(--ink);font-weight:600}
 .set .item .xbtn,.set .trow .xbtn{height:42px;min-width:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px}
 .ckrow{padding:13px 14px}
 .cic{display:inline-flex;color:#cfd5cc}.cic.on{color:var(--brand)}.cic svg{width:18px;height:18px}
@@ -434,8 +440,10 @@ async function loadWork(){
  S.work=a.map(mapR);S.myRecent=b.map(mapR);
 }
 async function loadPay(){
- S.pay={};if(!isDir())return;
- try{const r=await q(sb.from('uplate').select('*').eq('mjesec',month+'-01'));r.forEach(u=>{S.pay[u.dijete_id]={m:!!u.mjesecna,d:!!u.dodatna}})}catch(e){}
+ S.pay={};if(!isDir()){S.fee={};return}
+ const[a,b]=await Promise.all([q(sb.from('uplate').select('*').eq('mjesec',month+'-01')).catch(()=>[]),q(sb.from('clanarine').select('dijete_id,iznos')).catch(()=>null)]);
+ a.forEach(u=>{S.pay[u.dijete_id]={m:!!u.mjesecna,d:!!u.dodatna}});
+ if(b){S.fee={};b.forEach(k=>{S.fee[k.dijete_id]=+k.iznos})}
 }
 const payLevel=id=>{const p=S.pay&&S.pay[id];return p?(p.m?1:0)+(p.d?1:0):0};
 async function loadMonth(force){
@@ -736,47 +744,53 @@ const toIso=(d,t)=>t?new Date(d+'T'+t).toISOString():null;
 const hmNow=()=>new Date().toLocaleTimeString('bs-BA',{timeZone:'Europe/Sarajevo',hour:'2-digit',minute:'2-digit',hour12:false});
 
 /* ---------- IZVJEŠTAJI ---------- */
-let RPT={q:'',all:false,pay:'all'};
+let RPT={q:'',all:false,pay:'all'},PAYSEQ={};
 V.djeca=()=>{
  const es=S.entries.filter(e=>e.date.startsWith(month)),bc=groupBy(es,e=>e.childId);
  const withTr=S.children.filter(c=>bc[c.id]);
- const cnt={all:withTr.length,0:0,1:0,2:0};withTr.forEach(c=>cnt[payLevel(c.id)]++);
- let list=RPT.all?S.children.filter(c=>!c.archived||bc[c.id]):withTr;
- if(RPT.pay!=='all')list=list.filter(c=>bc[c.id]&&String(payLevel(c.id))===RPT.pay);
+ const allK=S.children.filter(c=>!c.archived||bc[c.id]);
+ const base=RPT.all?allK:withTr;
+ const cnt={all:allK.length,0:0,1:0,2:0};base.forEach(c=>cnt[payLevel(c.id)]++);
+ let list=RPT.pay==='all'?allK:base.filter(c=>String(payLevel(c.id))===RPT.pay);
  let h=`<div class="bar"><h2>Izvještaji</h2><input type="month" class="mth" data-change="month" value="${month}"></div>
  <div class="pseg">${[['all','Svi',''],['0','Duguju','s-dug'],['1','Djelimično','s-dj'],['2','Plaćeno','s-pl']].map(x=>`<button class="sg ${x[2]} ${RPT.pay===x[0]?'on':''}" data-act="payf" data-f="${x[0]}">${x[1]}<span class="n">${cnt[x[0]]}</span></button>`).join('')}</div>
  <div class="r6030"><input id="rq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" value="${esc(RPT.q)}"><button class="fbtn ${RPT.all?'on':''}" data-act="rall">Sva djeca</button></div>`;
  h+=`<div class="rows">`+(list.sort(byName).map(c=>{const l=bc[c.id]||[],pl=payLevel(c.id);
-  return `<button class="row rkid" data-act="report" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}" ${RPT.q&&!c.name.toLowerCase().includes(RPT.q.toLowerCase())?'style="display:none"':''}><span class="av ${l.length&&pl===1?'g1':l.length&&pl===2?'g2':''}">${esc(initials(c.name))}</span><div class="grow"><div class="t">${esc(c.name)}</div><div class="s">${l.length?`${l.length} treninga · ${hrs(sum(l,e=>e.hours))}`:'Nema treninga'}</div></div><span class="amt">${km(sum(l,e=>e.amount))}</span>${I.chev}</button>`}).join('')||`<div class="row"><div class="grow s">${RPT.pay!=='all'?'Nema djece s ovim statusom uplate.':'Nema djece s treninzima u '+monthLabel(month)+'.'}</div></div>`)+`</div>`;
+  return `<button class="row rkid" data-act="report" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}" ${RPT.q&&!c.name.toLowerCase().includes(RPT.q.toLowerCase())?'style="display:none"':''}><span class="av ${l.length&&pl===1?'pg1':l.length&&pl===2?'pg2':''}">${esc(initials(c.name))}</span><div class="grow"><div class="t">${esc(c.name)}</div><div class="s">${l.length?`${l.length} treninga · ${hrs(sum(l,e=>e.hours))}`:'Nema treninga'}</div></div><span class="amt">${km(sum(l,e=>e.amount))}</span>${I.chev}</button>`}).join('')||`<div class="row"><div class="grow s">${RPT.pay!=='all'?'Nema djece s ovim statusom uplate.':'Nema djece s treninzima u '+monthLabel(month)+'.'}</div></div>`)+`</div>`;
  h+=`<button class="btn" data-act="csv">Preuzmi sve unose za ${monthLabel(month)} (Excel / CSV)</button><button class="btn" data-act="wcsv">Preuzmi radno vrijeme za ${monthLabel(month)} (CSV)</button>`;
  return h+`<p class="note">Krug sa zelenim rubom: plaćena jedna uplata · pun zeleni krug: plaćene obje.</p>`;
 };
+const TOTSEL={m:true,d:true};
+function childTotals(id,es){const fee=S.fee&&S.fee[id]!=null?S.fee[id]:null,tr=sum(es,e=>e.amount);
+ const feeOn=TOTSEL.m&&fee!=null,trOn=TOTSEL.d;return{fee,tr,feeOn,trOn,total:(feeOn?fee:0)+(trOn?tr:0)}}
 const childEntries=()=>S.entries.filter(e=>e.childId===reportChild&&e.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
 V.izvjestaj=()=>{
  const c=child(reportChild),es=childEntries();
  const kids=S.children.filter(k=>!k.archived||k.id===reportChild).sort(byName),ix=kids.findIndex(k=>k.id===reportChild);
- const P=(S.pay&&S.pay[reportChild])||{m:false,d:false};
+ const P=(S.pay&&S.pay[reportChild])||{m:false,d:false},T=childTotals(reportChild,es);
  let h=`<div class="bar sub"><button class="back" data-act="back">${I.left}Nazad</button><input type="month" class="mth" data-change="month" value="${month}"></div>
  <div class="paybtns"><button class="pay ${P.m?'on':''}" data-act="paytog" data-v="mjesecna"><b>Mjesečna uplata</b><span>${P.m?'✓ plaćeno':'nije plaćeno'}</span></button><button class="pay ${P.d?'on':''}" data-act="paytog" data-v="dodatna"><b>Dodatne uplate</b><span>${P.d?'✓ plaćeno':'nije plaćeno'}</span></button></div>
+ <div class="paybtns sumbtns"><button class="sumb ${T.feeOn?'on':''} ${T.fee==null?'none':''}" data-act="sumtog" data-v="m"><span>Mjesečna uplata</span><b>${T.fee==null?'nije unesena':km(T.fee)}</b></button><button class="sumb ${T.trOn?'on':''}" data-act="sumtog" data-v="d"><span>Dodatni treninzi</span><b>${km(T.tr)}</b></button></div>
  <div class="report"><div class="rp-club">${esc(CFG.club)}</div><h2>Mjesečni izvještaj o treninzima</h2><div class="muted">Period: ${monthLabel(month)}</div>
  <div class="rp-meta"><div><span>Dijete</span><b>${esc(c.name)}</b></div><div><span>Roditelj</span><b>${esc(c.parent||'—')}</b></div><div><span>Broj treninga</span><b>${es.length}</b></div><div><span>Ukupno sati</span><b>${hrs(sum(es,e=>e.hours))}</b></div></div>`;
- if(!es.length){h+=`<div class="empty">Nema evidentiranih treninga u ovom mjesecu.</div></div>`}
+ const totBlock=`${T.feeOn&&T.trOn&&es.length?`<div class="rp-sub"><span>Mjesečna uplata</span><b>${km(T.fee)}</b></div><div class="rp-sub"><span>Dodatni treninzi</span><b>${km(T.tr)}</b></div>`:''}<div class="rp-total"><span>Ukupno za ${monthLabel(month)}${T.feeOn&&!T.trOn?' (mjesečna uplata)':!T.feeOn&&T.trOn&&T.fee!=null?' (dodatni treninzi)':''}</span><b>${km(T.total)}</b></div>`;
+ if(!es.length){h+=`<div class="empty">Nema evidentiranih treninga u ovom mjesecu.</div>${T.feeOn?totBlock:''}</div>`}
  else{
   h+=`<table class="tbl"><thead><tr><th>Datum</th><th>Trening</th><th class="r">Sati</th><th class="r">Iznos</th></tr></thead><tbody>`+
    es.map(e=>`<tr class="tap" data-act="edit" data-id="${e.id}"><td>${fmtDate(e.date).slice(0,6)}${e.from?`<small>${tRange(e)}</small>`:''}</td><td>${esc(e.typeName)}<small>${esc(trName(e.trainerId))} · ${km(e.price)}/h</small></td><td class="r">${num(e.hours)}</td><td class="r">${km(e.amount)}</td></tr>`).join('')+`</tbody></table>`;
   const bt=groupBy(es,e=>e.typeName);
   h+=`<h3 style="margin-left:0">Sažetak po vrsti</h3><table class="tbl"><thead><tr><th>Vrsta</th><th class="r">Br.</th><th class="r">Sati</th><th class="r">Iznos</th></tr></thead><tbody>`+
    Object.keys(bt).map(k=>`<tr><td>${esc(k)}</td><td class="r">${bt[k].length}</td><td class="r">${num(sum(bt[k],e=>e.hours))}</td><td class="r">${km(sum(bt[k],e=>e.amount))}</td></tr>`).join('')+`</tbody></table>`;
-  h+=`<div class="rp-total"><span>Ukupno za ${monthLabel(month)}</span><b>${km(sum(es,e=>e.amount))}</b></div>
+  h+=`${totBlock}
   <div class="rp-foot">Cijene su obračunate prema cjenovniku važećem na dan treninga. Za pitanja u vezi s izvještajem obratite se upravi kluba.</div></div>`;
  }
- h+=`${es.length?'<p class="hint" style="text-align:center">Tapnite red u tabeli da izmijenite ili obrišete trening.</p>':''}<h3 style="margin:22px 4px 8px">Pošalji izvještaj roditelju</h3>${sendBlock(c,es)}
+ h+=`${es.length?'<p class="hint" style="text-align:center">Tapnite red u tabeli da izmijenite ili obrišete trening.</p>':''}<h3 style="margin:22px 4px 8px">Pošalji izvještaj roditelju</h3>${sendBlock(c,es,T)}
  <button class="btn" data-act="copy">Kopiraj tekst izvještaja</button>
  ${kids.length>1?`<div class="navrow"><button class="btn" data-act="report" data-id="${kids[(ix-1+kids.length)%kids.length].id}">‹ Prethodno</button><button class="btn" data-act="report" data-id="${kids[(ix+1)%kids.length].id}">Sljedeće ›</button></div>`:''}`;
  return h;
 };
-function sendBlock(c,es){
- if(!es.length)return `<p class="hint" style="margin-top:0">Nema treninga u ovom mjesecu, pa nema ni izvještaja za slanje.</p>`;
+function sendBlock(c,es,T){
+ if(!es.length&&!(T&&T.feeOn))return `<p class="hint" style="margin-top:0">Nema treninga u ovom mjesecu, pa nema ni izvještaja za slanje.</p>`;
  const sel=c.ch.length?c.ch:['email','viber','whatsapp'];
  const miss=k=>k==='email'?!c.email:!intlPhone(c.phone);
  let h=`<div class="sendrow">${sel.map(k=>`<button class="snd ${k}" data-act="send" data-k="${k}" ${miss(k)?'data-miss="1"':''}>${CH[k].ic}<span>${CH[k].label}</span></button>`).join('')}</div>`;
@@ -785,7 +799,7 @@ function sendBlock(c,es){
  return h;
 }
 function fillTpl(t,c,es){
- const map={roditelj:c.parent||'',dijete:c.name,mjesec:monthLabel(month),iznos:km(sum(es,e=>e.amount)),broj_treninga:String(es.length),sati:hrs(sum(es,e=>e.hours))};
+ const map={roditelj:c.parent||'',dijete:c.name,mjesec:monthLabel(month),iznos:km(childTotals(c.id,es).total),broj_treninga:String(es.length),sati:hrs(sum(es,e=>e.hours))};
  return String(t||'').replace(/\{(\w+)\}/g,(m,k)=>k in map?map[k]:m).trim();
 }
 function reportSubject(){const c=child(reportChild);return fillTpl(S.msg.naslov,c,childEntries())}
@@ -795,7 +809,10 @@ function reportText(){
  es.forEach(e=>{t+=`${fmtDate(e.date).slice(0,6)}${e.from?' '+tRange(e):''}  ${e.typeName} – ${hrs(e.hours)} × ${km(e.price)} = ${km(e.amount)}\n`});
  const bt=groupBy(es,e=>e.typeName);
  if(Object.keys(bt).length>1){t+=`\nSažetak:\n`;Object.keys(bt).forEach(k=>{t+=`• ${k}: ${bt[k].length} treninga, ${hrs(sum(bt[k],e=>e.hours))}, ${km(sum(bt[k],e=>e.amount))}\n`})}
- t+=`\nUkupno: ${es.length} treninga, ${hrs(sum(es,e=>e.hours))}\nUKUPNO ZA UPLATU: ${km(sum(es,e=>e.amount))}`;
+ const T=childTotals(c.id,es);
+ if(es.length)t+=`\nUkupno: ${es.length} treninga, ${hrs(sum(es,e=>e.hours))}`+(T.feeOn&&T.trOn?`, ${km(T.tr)}`:'');
+ if(T.feeOn)t+=`\nMjesečna uplata: ${km(T.fee)}`;
+ t+=`\nUKUPNO ZA UPLATU: ${km(T.total)}`;
  const z=fillTpl(S.msg.zavrsetak,c,es);if(z)t+='\n\n'+z;
  return t;
 }
@@ -849,7 +866,7 @@ V.postavke=()=>{
   <p class="hint">Cijena je u KM po satu. Nova cijena važi samo za nove unose – već uneseni treninzi zadržavaju cijenu s kojom su sačuvani.</p>`);
  h+=sec('postavke','trajanja','Ponuđena trajanja („Koliko sati?“)',DUR().length+'',()=>`<div class="rows" style="padding:12px"><div class="durs">${DUR().map((v,i)=>`<span class="dchip"><button data-act="dedit" data-i="${i}">${durText(v)}</button><button class="dx" data-act="ddel" data-i="${i}" aria-label="Obriši">✕</button></span>`).join('')}</div>
   <button class="btn" data-act="dadd">+ Dodaj trajanje</button></div><p class="hint">Tap na trajanje ga mijenja. Opcije se same poredaju od najkraćeg do najdužeg. Već uneseni treninzi se ne mijenjaju.</p>`);
- h+=sec('postavke','djeca','Djeca',active(S.children).length+'',()=>`<input id="cq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" style="margin-bottom:10px"><div class="rows set">`+active(S.children).sort(byName).map(c=>OPENKID!==c.id?`<button class="row ckrow citem" data-act="kidopen" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><div class="grow t">${esc(c.name)}</div><span class="cic ${c.email?'on':''}">${CH.email.ic}</span><span class="cic ${c.phone?'on':''}"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>${I.chev}</button>`:`<div class="item citem kidopen" data-n="${esc(c.name.toLowerCase())}"><button class="row ckrow ckhead" data-act="kidopen" data-id="${c.id}"><div class="grow t">${esc(c.name)}</div><span class="acc-i" style="transform:rotate(90deg)">${I.chev}</span></button><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div><label style="margin-top:8px">Telefon roditelja (Viber / WhatsApp)<input data-change="cphone" data-id="${c.id}" type="tel" inputmode="tel" placeholder="npr. 061 123 456" value="${esc(c.phone)}"></label>${chanRow(c,'chtog')}</div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button><button class="addbtn" data-act="imp" style="border-top:1px solid var(--line)">⇪ Uvezi djecu iz Excela / Google Sheets</button></div>`);
+ h+=sec('postavke','djeca','Djeca',active(S.children).length+'',()=>`<input id="cq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" style="margin-bottom:10px"><div class="rows set">`+active(S.children).sort(byName).map(c=>OPENKID!==c.id?`<button class="row ckrow citem" data-act="kidopen" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><div class="grow t">${esc(c.name)}</div><span class="cic ${c.email?'on':''}">${CH.email.ic}</span><span class="cic ${c.phone?'on':''}"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>${I.chev}</button>`:`<div class="item citem kidopen" data-n="${esc(c.name.toLowerCase())}"><button class="row ckrow ckhead" data-act="kidopen" data-id="${c.id}"><div class="grow t">${esc(c.name)}</div><span class="acc-i" style="transform:rotate(90deg)">${I.chev}</span></button><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div><div class="g2"><label>Telefon roditelja<input data-change="cphone" data-id="${c.id}" type="tel" inputmode="tel" placeholder="061 123 456" value="${esc(c.phone)}"></label><label>Mjesečna uplata (KM)<input data-change="cfee" data-id="${c.id}" type="text" inputmode="decimal" placeholder="npr. 50" value="${S.fee&&S.fee[c.id]!=null?num(S.fee[c.id]):''}"></label></div>${chanRow(c,'chtog')}</div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button><button class="addbtn" data-act="imp" style="border-top:1px solid var(--line)">⇪ Uvezi djecu iz Excela / Google Sheets</button></div>`);
  h+=sec('postavke','treneri','Treneri i uprava',active(S.trainers).length+'',()=>`<div class="rows set">`+active(S.trainers).map(t=>`<div class="item"><div class="trow" style="grid-template-columns:1fr auto auto"><input data-change="rname" data-id="${t.id}" value="${esc(t.name)}"><button class="xbtn" style="color:var(--brand)" data-act="rpass" data-id="${t.id}">Lozinka</button>${t.id===me.id?'<span></span>':x('trainers',t.id)}</div><div class="hint" style="margin:6px 2px 0">${t.role==='superadmin'?'Superadmin':t.role==='direktor'?'Direktor':'Trener'}${t.email?' · '+esc(t.email):''}</div></div>`).join('')+`<button class="addbtn" data-act="radd">+ Dodaj trenera</button></div>`);
  h+=sec('postavke','poruka','Poruka roditeljima','',()=>`<div class="rows set"><div class="item">
   <label>Naslov (za email)<input data-change="msg" data-f="naslov" value="${esc(S.msg.naslov)}"></label>
@@ -1079,8 +1096,12 @@ const A={
  payf:d=>{RPT.pay=d.f;render()},
  rall:()=>{RPT.all=!RPT.all;render()},
  kidopen:d=>{OPENKID=OPENKID===d.id?null:d.id;render()},
- paytog:(d,el)=>{const cur=(S.pay[reportChild]||{m:false,d:false});const k=d.v==='mjesecna'?'m':'d';const v=!cur[k];
-   guard(el,async()=>{const r=await q(sb.rpc('postavi_uplatu',{p_dijete:reportChild,p_mjesec:month+'-01',p_vrsta:d.v,p_placeno:v}));S.pay[reportChild]={m:!!r.mjesecna,d:!!r.dodatna};render();toast(v?'Označeno kao plaćeno':'Oznaka uklonjena')})},
+ paytog:d=>{const id=reportChild,k=d.v==='mjesecna'?'m':'d';const cur=S.pay[id]||{m:false,d:false};const v=!cur[k];
+   S.pay[id]={...cur,[k]:v};render();
+   const key=id+k,seq=(PAYSEQ[key]=(PAYSEQ[key]||0)+1);
+   q(sb.rpc('postavi_uplatu',{p_dijete:id,p_mjesec:month+'-01',p_vrsta:d.v,p_placeno:v})).then(r=>{if(PAYSEQ[key]!==seq)return;const p=S.pay[id]||{};S.pay[id]={...p,[k]:d.v==='mjesecna'?!!r.mjesecna:!!r.dodatna};render()})
+   .catch(e=>{if(PAYSEQ[key]!==seq)return;const p=S.pay[id]||{};S.pay[id]={...p,[k]:!v};render();toast('Nije sačuvano: '+(e&&e.message||'greška'),'err')})},
+ sumtog:d=>{if(d.v==='m'&&(S.fee||{})[reportChild]==null){toast('Mjesečna uplata nije unesena – unesite je u Postavke → Djeca');return}TOTSEL[d.v]=!TOTSEL[d.v];render()},
  ushowhid:()=>{ADM.showHidden=!ADM.showHidden;render()},
  uhide:d=>{const u=S.trainers.find(x=>x.id===d.id);confirmYN(`Sakriti korisnika ${esc(u.name)}?`,'Nestaje sa svih lista i gubi pristup. Njegovi stari treninzi ostaju u izvještajima.',()=>guard(null,async()=>{await q(sb.from('profili').update({sakriven:true,aktivan:false}).eq('id',u.id).select('id').single());u.hidden=true;u.archived=true;render();toast('Korisnik sakriven')}))},
  uunhide:d=>{const u=S.trainers.find(x=>x.id===d.id);guard(null,async()=>{await q(sb.from('profili').update({sakriven:false}).eq('id',u.id).select('id').single());u.hidden=false;render();toast('Vraćen – i dalje neaktivan dok ga ne odobrite')})},
@@ -1197,6 +1218,10 @@ const C={
  impfile:async t=>{const f=t.files&&t.files[0];if(!f)return;
    try{let rows;if(/\.xlsx?$/i.test(f.name)){const X=await loadXLSX();const wb=X.read(await f.arrayBuffer(),{type:'array'});rows=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:''}).map(r=>r.map(c=>String(c).trim())).filter(r=>r.some(Boolean))}
    else rows=splitRows(await f.text());IMP={rows:analyzeRows(rows)};impSheet()}catch(e){toast(errText(e))}},
+ cfee:t=>{const id=t.dataset.id,v=t.value.trim().replace(/\s|KM/gi,'').replace(',','.');const n=v===''?null:Number(v);
+  if(n!==null&&(!isFinite(n)||n<0)){toast('Upišite iznos, npr. 50 ili 37,50');return}
+  const old=(S.fee||{})[id];S.fee=S.fee||{};if(n===null)delete S.fee[id];else S.fee[id]=Math.round(n*100)/100;t.value=n===null?'':num(S.fee[id]);
+  q(sb.rpc('postavi_clanarinu',{p_dijete:id,p_iznos:n})).then(()=>toast(n===null?'Mjesečna uplata uklonjena':'Sačuvano')).catch(e=>{if(old==null)delete S.fee[id];else S.fee[id]=old;toast(errText(e));render()})},
  cphone:t=>{const c=S.children.find(c=>c.id===t.dataset.id);if(c){c.phone=t.value.trim();upd('djeca',c.id,{telefon_roditelja:c.phone||null},'Sačuvano')}},
  msg:t=>{const f=t.dataset.f,v=t.value;S.msg[f]=v;const col={naslov:'poruka_naslov',uvod:'poruka_uvod',zavrsetak:'poruka_zavrsetak'}[f];upd('postavke',1,{[col]:v},'Poruka sačuvana')},
  rname:t=>{const r=S.trainers.find(r=>r.id===t.dataset.id);const v=t.value.trim();if(r&&v){r.name=v;if(r.id===me.id){me.name=v;$('#who').textContent=v}upd('profili',r.id,{ime:v},'Sačuvano')}else if(r)t.value=r.name},
