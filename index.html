@@ -992,28 +992,38 @@ function splitRows(text){
  return rows.map(r=>r.map(c=>String(c).trim())).filter(r=>r.some(Boolean));
 }
 function analyzeRows(rows){
- if(rows.length&&/ime|prezime|roditelj/i.test(rows[0].join(' ')))rows=rows.slice(1);
- const have=new Set(S.children.map(c=>c.name.toLowerCase().replace(/\s+/g,' ')));const seen=new Set();
+ let map=[0,1,2,3,4,5],full=-1;
+ if(rows.length&&/ime|prezime|roditelj|mail|telefon|dijete/i.test(rows[0].join(' '))){
+  const hd=rows[0].map(x=>String(x).toLowerCase().replace(/\s+/g,' ').trim()),used=new Set();
+  const f=re=>{const i=hd.findIndex((x,k)=>!used.has(k)&&re.test(x));if(i>=0)used.add(i);return i};
+  const em=f(/mail/),tel=f(/telefon|^tel\b|mob|viber|whats|broj/),fe=f(/uplat|cijen|članar|clanar|iznos|\bkm\b/),rod=f(/roditelj|otac|majka|staratelj/);
+  const fl=f(/ime i prezime|ime_prezime|imeprezime|prezime i ime|dijete|učenik|ucenik|polaznik|naziv/),pr=f(/prezime/),im=f(/^ime\b|\bime$|^ime$/);
+  if(fl>=0||im>=0){full=fl>=0&&im<0?fl:-1;map=[im>=0?im:fl,pr,rod,em,tel,fe]}
+  rows=rows.slice(1)}
+ const cell=(r,i)=>i>=0&&i!=null?String(r[i]??'').trim():'';
+ const have=new Map(S.children.map(c=>[c.name.toLowerCase().replace(/\s+/g,' '),c]));const seen=new Set();
  return rows.map(r=>{
-  const[ime='',prez='',rod='',email='',tel='']=r;const name=(ime+' '+prez).trim().replace(/\s+/g,' ');const k=name.toLowerCase();
-  let st='ok',msg='';
+  const ime=cell(r,map[0]),prez=full>=0?'':cell(r,map[1]),rod=cell(r,map[2]),email=cell(r,map[3]),tel=cell(r,map[4]),cij=cell(r,map[5]);const name=(ime+' '+prez).trim().replace(/\s+/g,' ');const k=name.toLowerCase();
+  const cs=String(cij).replace(/km|\s/gi,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.');const fee=cs===''?null:Number(cs);
+  let st='ok',msg='',id=null;
   if(!name){st='err';msg='nema imena'}
   else if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){st='err';msg='neispravan email'}
-  else if(have.has(k)){st='skip';msg='već postoji'}
+  else if(fee!==null&&(!isFinite(fee)||fee<0)){st='err';msg='neispravna mjesečna uplata'}
   else if(seen.has(k)){st='skip';msg='dupli red'}
+  else if(have.has(k)){id=have.get(k).id;if(fee!==null&&(S.fee||{})[id]!==fee){st='fee';msg='već postoji – upisat će se mjesečna uplata'}else{st='skip';msg='već postoji'}}
   seen.add(k);
-  return{name,parent:rod,email,phone:tel,st,msg};
+  return{name,parent:rod,email,phone:tel,fee,id,st,msg};
  });
 }
 function impSheet(){
- const list=IMP&&IMP.rows;const n=list?list.filter(r=>r.st==='ok').length:0;
+ const list=IMP&&IMP.rows;const n=list?list.filter(r=>r.st==='ok').length:0,nf=list?list.filter(r=>r.st==='fee').length:0;
  openSheet(`<p class="sh-title">Uvoz djece</p>
- <p class="muted" style="margin-top:0">Kolone redom: <b>ime, prezime, ime roditelja, email, telefon</b>. Prvi red s nazivima kolona se sam preskače.</p>
+ <p class="muted" style="margin-top:0">Izaberite svoj Excel fajl – svaki podatak u svojoj koloni. Ako prvi red ima nazive (npr. <b>Ime, Prezime, Ime roditelja, Email, Telefon, Mjesečna uplata</b>), kolone mogu biti bilo kojim redom, a dozvoljena je i jedna kolona „Ime i prezime“. Bez naziva vrijedi redoslijed iz predloška. Prazna polja su dozvoljena. Za dijete koje već postoji upisuje se samo mjesečna uplata.</p>
  <label class="btn" style="text-align:center;cursor:pointer;margin-top:4px">Izaberi fajl (Excel .xlsx ili .csv)<input type="file" accept=".xlsx,.xls,.csv,.txt" data-change="impfile" hidden></label>
- <div class="ef"><label>…ili zalijepite redove iz Excela / Google Sheets<textarea id="imptxt" rows="4" placeholder="Amar&#9;Hodžić&#9;Selma Hodžić&#9;selma@mail.com&#9;061 123 456"></textarea></label></div>
+ <div class="ef"><label>…ili zalijepite redove iz Excela / Google Sheets<textarea id="imptxt" rows="4" placeholder="Amar&#9;Hodžić&#9;Selma Hodžić&#9;selma@mail.com&#9;061 123 456&#9;50"></textarea></label></div>
  <div class="yn" style="margin-top:8px"><button class="btn" data-act="imptpl">Preuzmi predložak</button><button class="btn" data-act="impparse">Pregledaj</button></div>
- ${list?`<h3 style="margin:16px 0 6px">Pregled (${list.length} redova)</h3><div class="rows imp">${list.map(r=>`<div class="row"><span class="ist ${r.st}">${r.st==='ok'?'✓':r.st==='skip'?'–':'!'}</span><div class="grow"><div class="t">${esc(r.name||'(prazno)')}</div><div class="s">${esc([r.parent,r.email,r.phone].filter(Boolean).join(' · '))}${r.msg?` <b>${r.msg}</b>`:''}</div></div></div>`).join('')}</div>
-  <button class="btn big ok" data-act="impgo" ${n?'':'disabled'}>Uvezi ${n} ${n===1?'dijete':'djece'}</button>`:''}
+ ${list?`<h3 style="margin:16px 0 6px">Pregled (${list.length} redova)</h3><div class="rows imp">${list.map(r=>`<div class="row"><span class="ist ${r.st==='fee'?'ok':r.st}">${r.st==='ok'?'✓':r.st==='fee'?'KM':r.st==='skip'?'–':'!'}</span><div class="grow"><div class="t">${esc(r.name||'(prazno)')}</div><div class="s">${esc([r.parent,r.email,r.phone,r.fee!=null?km(r.fee)+'/mj.':''].filter(Boolean).join(' · '))}${r.msg?` <b>${r.msg}</b>`:''}</div></div></div>`).join('')}</div>
+  <button class="btn big ok" data-act="impgo" ${n||nf?'':'disabled'}>${n?`Uvezi ${n} ${n===1?'dijete':'djece'}`:''}${n&&nf?' + ':''}${nf?`${n?'':'Upiši '}${nf} ${nf===1?'uplatu':'uplata'}`:''}${!n&&!nf?'Nema ništa za uvoz':''}</button>`:''}
  <button class="btn ghost" data-act="close">Zatvori</button>`);
 }
 function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res(window.XLSX);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>res(window.XLSX);s.onerror=()=>rej(new Error('Ne mogu učitati čitač Excel fajlova. Provjerite internet ili sačuvajte fajl kao CSV.'));document.head.appendChild(s)})}
@@ -1174,12 +1184,19 @@ const A={
  uact:d=>{const u=S.trainers.find(x=>x.id===d.id);if(!u)return;const on=u.archived;
    confirmYN(on?`Odobriti pristup za ${esc(u.name)}?`:`Blokirati pristup za ${esc(u.name)}?`,on?'':'Više se neće moći prijaviti. Stari unosi i izvještaji ostaju. Pristup možete vratiti dugmetom „Odobri“.',()=>guard(null,async()=>{await q(sb.from('profili').update({aktivan:on}).eq('id',u.id).select('id').single());u.archived=!on;render();toast(on?'Pristup odobren':'Pristup blokiran')}),!on)},
  imp:()=>{IMP=null;impSheet()},
- imptpl:()=>{const csv='\ufeff'+['Ime;Prezime;Ime roditelja;Email;Telefon','Amar;Hodžić;Selma Hodžić;selma@primjer.ba;061 123 456'].join('\r\n');
-   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='predlozak-djeca.csv';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000)},
+ imptpl:(d,el)=>guard(el,async()=>{const rows=[['Ime','Prezime','Ime roditelja','Email','Telefon','Mjesečna uplata (KM)'],['Amar','Hodžić','Selma Hodžić','selma@primjer.ba','061 123 456',50],['Lejla','Begić','Emir Begić','','062 987 654','']];
+   try{const X=await loadXLSX();const ws=X.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:14},{wch:16},{wch:20},{wch:26},{wch:16},{wch:20}];const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,'Djeca');X.writeFile(wb,'predlozak-djeca.xlsx')}
+   catch(e){const csv='\ufeff'+rows.map(r=>r.join(';')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='predlozak-djeca.csv';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000)}},'Pripremam…'),
  impparse:()=>{const t=$('#imptxt').value;if(!t.trim())return toast('Zalijepite redove ili izaberite fajl');IMP={rows:analyzeRows(splitRows(t))};impSheet()},
  impgo:(d,el)=>guard(el,async()=>{const ok=IMP.rows.filter(r=>r.st==='ok');
-   const ins=await q(sb.from('djeca').insert(ok.map(r=>({ime:r.name,roditelj:r.parent||null,email_roditelja:r.email||null,telefon_roditelja:r.phone||null,kanali:r.email?['email']:[]}))).select('*'));
-   ins.forEach(r=>S.children.push(mapC(r)));IMP=null;closeSheet();render();toast(`Uvezeno ${ins.length} djece`)},'Uvozim…'),
+   const ins=ok.length?await q(sb.from('djeca').insert(ok.map(r=>({ime:r.name,roditelj:r.parent||null,email_roditelja:r.email||null,telefon_roditelja:r.phone||null,kanali:r.email?['email']:[]}))).select('*')):[];
+   ins.forEach(r=>S.children.push(mapC(r)));
+   const byName=new Map(ins.map(r=>[String(r.ime).toLowerCase(),r.id]));
+   const fees=[...ok.filter(r=>r.fee!=null).map(r=>({id:byName.get(r.name.toLowerCase()),fee:r.fee})),...IMP.rows.filter(r=>r.st==='fee').map(r=>({id:r.id,fee:r.fee}))].filter(f=>f.id);
+   let bad=0;S.fee=S.fee||{};
+   await Promise.all(fees.map(f=>q(sb.rpc('postavi_clanarinu',{p_dijete:f.id,p_iznos:f.fee})).then(()=>{S.fee[f.id]=Math.round(f.fee*100)/100}).catch(()=>{bad++})));
+   IMP=null;closeSheet();render();
+   toast([ins.length?`Uvezeno ${ins.length} djece`:'',fees.length-bad?`upisano ${fees.length-bad} mjesečnih uplata`:'',bad?`${bad} uplata nije sačuvano`:''].filter(Boolean).join(', '))},'Uvozim…'),
  send:d=>sendTo(d.k),
  chtog:(d,el)=>{const c=S.children.find(x=>x.id===d.id);if(!c)return;const on=!c.ch.includes(d.k);
    const next=on?[...c.ch,d.k]:c.ch.filter(k=>k!==d.k);const prev=c.ch;c.ch=['email','viber','whatsapp'].filter(k=>next.includes(k));
