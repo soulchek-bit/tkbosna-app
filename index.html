@@ -880,7 +880,7 @@ V.postavke=()=>{
   <p class="hint">Cijena je u KM po satu. Nova cijena važi samo za nove unose – već uneseni treninzi zadržavaju cijenu s kojom su sačuvani.</p>`);
  h+=sec('postavke','trajanja','Ponuđena trajanja („Koliko sati?“)',DUR().length+'',()=>`<div class="rows" style="padding:12px"><div class="durs">${DUR().map((v,i)=>`<span class="dchip"><button data-act="dedit" data-i="${i}">${durText(v)}</button><button class="dx" data-act="ddel" data-i="${i}" aria-label="Obriši">✕</button></span>`).join('')}</div>
   <button class="btn" data-act="dadd">+ Dodaj trajanje</button></div><p class="hint">Tap na trajanje ga mijenja. Opcije se same poredaju od najkraćeg do najdužeg. Već uneseni treninzi se ne mijenjaju.</p>`);
- h+=sec('postavke','djeca','Djeca',active(S.children).length+'',()=>`<input id="cq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" style="margin-bottom:10px"><div class="rows set">`+active(S.children).sort(byName).map(c=>OPENKID!==c.id?`<button class="row ckrow citem" data-act="kidopen" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><div class="grow t">${esc(c.name)}</div><span class="cic ${c.email?'on':''}">${CH.email.ic}</span><span class="cic ${c.phone?'on':''}"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>${I.chev}</button>`:`<div class="item citem kidopen" data-n="${esc(c.name.toLowerCase())}"><button class="row ckrow ckhead" data-act="kidopen" data-id="${c.id}"><div class="grow t">${esc(c.name)}</div><span class="acc-i" style="transform:rotate(90deg)">${I.chev}</span></button><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div><div class="g2"><label>Telefon roditelja<input data-change="cphone" data-id="${c.id}" type="tel" inputmode="tel" placeholder="061 123 456" value="${esc(c.phone)}"></label><label>Mjesečna uplata (KM)<input data-change="cfee" data-id="${c.id}" type="text" inputmode="decimal" placeholder="npr. 50" value="${S.fee&&S.fee[c.id]!=null?num(S.fee[c.id]):''}"></label></div>${chanRow(c,'chtog')}</div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button><button class="addbtn" data-act="imp" style="border-top:1px solid var(--line)">⇪ Uvezi djecu iz Excela / Google Sheets</button></div>`);
+ h+=sec('postavke','djeca','Djeca',active(S.children).length+'',()=>`<input id="cq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" style="margin-bottom:10px"><div class="rows set">`+active(S.children).sort(byName).map(c=>OPENKID!==c.id?`<button class="row ckrow citem" data-act="kidopen" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><div class="grow t">${esc(c.name)}</div><span class="cic ${c.email?'on':''}">${CH.email.ic}</span><span class="cic ${c.phone?'on':''}"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>${I.chev}</button>`:`<div class="item citem kidopen" data-n="${esc(c.name.toLowerCase())}"><button class="row ckrow ckhead" data-act="kidopen" data-id="${c.id}"><div class="grow t">${esc(c.name)}</div><span class="acc-i" style="transform:rotate(90deg)">${I.chev}</span></button><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div><div class="g2"><label>Telefon roditelja<input data-change="cphone" data-id="${c.id}" type="tel" inputmode="tel" placeholder="061 123 456" value="${esc(c.phone)}"></label><label>Mjesečna uplata (KM)<input data-change="cfee" data-id="${c.id}" type="text" inputmode="decimal" placeholder="npr. 50" value="${S.fee&&S.fee[c.id]!=null?num(S.fee[c.id]):''}"></label></div>${chanRow(c,'chtog')}</div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button><button class="addbtn" data-act="imp" style="border-top:1px solid var(--line)">⇪ Uvezi djecu iz Excela / Google Sheets</button><button class="addbtn" data-act="kidexp" style="border-top:1px solid var(--line)">⇩ Izvezi svu djecu u Excel</button></div>`);
  const staff=active(S.trainers).filter(t=>t.role!=='superadmin');
  h+=sec('postavke','treneri','Treneri i uprava',staff.length+'',()=>`<div class="rows set">`+staff.map(t=>`<div class="item"><div class="trow" style="grid-template-columns:1fr auto auto"><input data-change="rname" data-id="${t.id}" value="${esc(t.name)}"><button class="xbtn" style="color:var(--brand)" data-act="rpass" data-id="${t.id}">Lozinka</button>${t.id===me.id?'<span></span>':`<button class="xbtn" style="color:var(--danger)" data-act="uact" data-id="${t.id}">Blokiraj</button>`}</div><div class="hint" style="margin:6px 2px 0">${t.role==='superadmin'?'Superadmin':t.role==='direktor'?'Direktor':'Trener'}${t.email?' · '+esc(t.email):''}</div></div>`).join('')+`<button class="addbtn" data-act="radd">+ Dodaj trenera</button></div>`);
  h+=sec('postavke','poruka','Poruka roditeljima','',()=>`<div class="rows set"><div class="item">
@@ -992,38 +992,46 @@ function splitRows(text){
  return rows.map(r=>r.map(c=>String(c).trim())).filter(r=>r.some(Boolean));
 }
 function analyzeRows(rows){
- let map=[0,1,2,3,4,5],full=-1;
+ let map=[0,-1,1,2,3,4],full=0;
  if(rows.length&&/ime|prezime|roditelj|mail|telefon|dijete/i.test(rows[0].join(' '))){
   const hd=rows[0].map(x=>String(x).toLowerCase().replace(/\s+/g,' ').trim()),used=new Set();
   const f=re=>{const i=hd.findIndex((x,k)=>!used.has(k)&&re.test(x));if(i>=0)used.add(i);return i};
   const em=f(/mail/),tel=f(/telefon|^tel\b|mob|viber|whats|broj/),fe=f(/uplat|cijen|članar|clanar|iznos|\bkm\b/),rod=f(/roditelj|otac|majka|staratelj/);
   const fl=f(/ime i prezime|ime_prezime|imeprezime|prezime i ime|dijete|učenik|ucenik|polaznik|naziv/),pr=f(/prezime/),im=f(/^ime\b|\bime$|^ime$/);
-  if(fl>=0||im>=0){full=fl>=0&&im<0?fl:-1;map=[im>=0?im:fl,pr,rod,em,tel,fe]}
+  if(fl>=0||im>=0){full=fl>=0&&im<0?fl:-1;map=[im>=0?im:fl,pr,rod,em,tel,fe]}else full=0
   rows=rows.slice(1)}
  const cell=(r,i)=>i>=0&&i!=null?String(r[i]??'').trim():'';
  const have=new Map(S.children.map(c=>[c.name.toLowerCase().replace(/\s+/g,' '),c]));const seen=new Set();
  return rows.map(r=>{
   const ime=cell(r,map[0]),prez=full>=0?'':cell(r,map[1]),rod=cell(r,map[2]),email=cell(r,map[3]),tel=cell(r,map[4]),cij=cell(r,map[5]);const name=(ime+' '+prez).trim().replace(/\s+/g,' ');const k=name.toLowerCase();
   const cs=String(cij).replace(/km|\s/gi,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.');const fee=cs===''?null:Number(cs);
-  let st='ok',msg='',id=null;
+  let st='ok',msg='',id=null,feeCh=false;const upd={};
   if(!name){st='err';msg='nema imena'}
   else if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){st='err';msg='neispravan email'}
   else if(fee!==null&&(!isFinite(fee)||fee<0)){st='err';msg='neispravna mjesečna uplata'}
   else if(seen.has(k)){st='skip';msg='dupli red'}
-  else if(have.has(k)){id=have.get(k).id;if(fee!==null&&(S.fee||{})[id]!==fee){st='fee';msg='već postoji – upisat će se mjesečna uplata'}else{st='skip';msg='već postoji'}}
+  else if(have.has(k)){const c=have.get(k);id=c.id;const what=[];
+   const diff=[],same=(a,b)=>String(a).trim().toLowerCase()===String(b).trim().toLowerCase(),digits=x=>String(x).replace(/\D/g,'').replace(/^(387|00387)/,'').replace(/^0/,'');
+   if(rod){if(!c.parent){upd.roditelj=rod;what.push('roditelj')}else if(!same(rod,c.parent))diff.push('roditelj')}
+   if(email){if(!c.email){upd.email_roditelja=email;what.push('email');if(!c.ch.includes('email'))upd.kanali=['email','viber','whatsapp'].filter(x=>x==='email'||c.ch.includes(x))}else if(!same(email,c.email))diff.push('email')}
+   if(tel){if(!c.phone){upd.telefon_roditelja=tel;what.push('telefon')}else if(digits(tel)!==digits(c.phone))diff.push('telefon')}
+   const oldFee=(S.fee||{})[id];let feeMsg='';
+   if(fee!==null&&oldFee!==fee){feeCh=true;if(oldFee==null)what.push('mjesečna uplata');else feeMsg=`mjesečna uplata će se zamijeniti: ${km(oldFee)} → ${km(fee)}`}
+   const parts=[];if(what.length)parts.push('dopunit će se: '+what.join(', '));if(feeMsg)parts.push(feeMsg);if(diff.length)parts.push('preskače se (u aplikaciji je drugačije): '+diff.join(', '));
+   st=what.length||feeMsg?'fee':'skip';msg='već postoji'+(parts.length?' – '+parts.join('; '):', nema novih podataka')}
   seen.add(k);
-  return{name,parent:rod,email,phone:tel,fee,id,st,msg};
+  return{name,parent:rod,email,phone:tel,fee,id,st,msg,upd,feeCh};
  });
 }
 function impSheet(){
  const list=IMP&&IMP.rows;const n=list?list.filter(r=>r.st==='ok').length:0,nf=list?list.filter(r=>r.st==='fee').length:0;
  openSheet(`<p class="sh-title">Uvoz djece</p>
- <p class="muted" style="margin-top:0">Izaberite svoj Excel fajl – svaki podatak u svojoj koloni. Ako prvi red ima nazive (npr. <b>Ime, Prezime, Ime roditelja, Email, Telefon, Mjesečna uplata</b>), kolone mogu biti bilo kojim redom, a dozvoljena je i jedna kolona „Ime i prezime“. Bez naziva vrijedi redoslijed iz predloška. Prazna polja su dozvoljena. Za dijete koje već postoji upisuje se samo mjesečna uplata.</p>
+ <p class="muted" style="margin-top:0">Izaberite svoj Excel fajl – svaki podatak u svojoj koloni. Ako prvi red ima nazive (npr. <b>Ime i prezime, Ime roditelja, Email, Telefon, Mjesečna uplata</b>), kolone mogu biti bilo kojim redom, a mogu biti i odvojene kolone „Ime“ i „Prezime“. Bez naziva vrijedi redoslijed iz predloška. Prazna polja su dozvoljena. Za dijete koje već postoji dopunjavaju se samo prazna polja (roditelj, email, telefon) i mjesečna uplata – već upisani podaci se ne mijenjaju.</p>
  <label class="btn" style="text-align:center;cursor:pointer;margin-top:4px">Izaberi fajl (Excel .xlsx ili .csv)<input type="file" accept=".xlsx,.xls,.csv,.txt" data-change="impfile" hidden></label>
- <div class="ef"><label>…ili zalijepite redove iz Excela / Google Sheets<textarea id="imptxt" rows="4" placeholder="Amar&#9;Hodžić&#9;Selma Hodžić&#9;selma@mail.com&#9;061 123 456&#9;50"></textarea></label></div>
+ <div class="ef"><label>…ili zalijepite redove iz Excela / Google Sheets<textarea id="imptxt" rows="4" placeholder="Amar Hodžić&#9;Selma Hodžić&#9;selma@mail.com&#9;061 123 456&#9;50"></textarea></label></div>
  <div class="yn" style="margin-top:8px"><button class="btn" data-act="imptpl">Preuzmi predložak</button><button class="btn" data-act="impparse">Pregledaj</button></div>
- ${list?`<h3 style="margin:16px 0 6px">Pregled (${list.length} redova)</h3><div class="rows imp">${list.map(r=>`<div class="row"><span class="ist ${r.st==='fee'?'ok':r.st}">${r.st==='ok'?'✓':r.st==='fee'?'KM':r.st==='skip'?'–':'!'}</span><div class="grow"><div class="t">${esc(r.name||'(prazno)')}</div><div class="s">${esc([r.parent,r.email,r.phone,r.fee!=null?km(r.fee)+'/mj.':''].filter(Boolean).join(' · '))}${r.msg?` <b>${r.msg}</b>`:''}</div></div></div>`).join('')}</div>
-  <button class="btn big ok" data-act="impgo" ${n||nf?'':'disabled'}>${n?`Uvezi ${n} ${n===1?'dijete':'djece'}`:''}${n&&nf?' + ':''}${nf?`${n?'':'Upiši '}${nf} ${nf===1?'uplatu':'uplata'}`:''}${!n&&!nf?'Nema ništa za uvoz':''}</button>`:''}
+ ${list?`<h3 style="margin:16px 0 6px">Pregled (${list.length} redova)</h3><div class="rows imp">${list.map(r=>`<div class="row"><span class="ist ${r.st==='fee'?'ok':r.st}">${r.st==='ok'?'✓':r.st==='fee'?'+':r.st==='skip'?'–':'!'}</span><div class="grow"><div class="t">${esc(r.name||'(prazno)')}</div><div class="s">${esc([r.parent,r.email,r.phone,r.fee!=null?km(r.fee)+'/mj.':''].filter(Boolean).join(' · '))}${r.msg?` <b>${r.msg}</b>`:''}</div></div></div>`).join('')}</div>
+  <button class="btn big ok" data-act="impgo" ${n||nf?'':'disabled'}>${n?`Uvezi ${n} ${n===1?'dijete':'djece'}`:''}${n&&nf?' + ':''}${nf?`${n?'dopuni':'Dopuni'} ${nf} ${nf===1?'postojeće dijete':'postojeće djece'}`:''}${!n&&!nf?'Nema ništa za uvoz':''}</button>`:''}
  <button class="btn ghost" data-act="close">Zatvori</button>`);
 }
 function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res(window.XLSX);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>res(window.XLSX);s.onerror=()=>rej(new Error('Ne mogu učitati čitač Excel fajlova. Provjerite internet ili sačuvajte fajl kao CSV.'));document.head.appendChild(s)})}
@@ -1184,19 +1192,26 @@ const A={
  uact:d=>{const u=S.trainers.find(x=>x.id===d.id);if(!u)return;const on=u.archived;
    confirmYN(on?`Odobriti pristup za ${esc(u.name)}?`:`Blokirati pristup za ${esc(u.name)}?`,on?'':'Više se neće moći prijaviti. Stari unosi i izvještaji ostaju. Pristup možete vratiti dugmetom „Odobri“.',()=>guard(null,async()=>{await q(sb.from('profili').update({aktivan:on}).eq('id',u.id).select('id').single());u.archived=!on;render();toast(on?'Pristup odobren':'Pristup blokiran')}),!on)},
  imp:()=>{IMP=null;impSheet()},
- imptpl:(d,el)=>guard(el,async()=>{const rows=[['Ime','Prezime','Ime roditelja','Email','Telefon','Mjesečna uplata (KM)'],['Amar','Hodžić','Selma Hodžić','selma@primjer.ba','061 123 456',50],['Lejla','Begić','Emir Begić','','062 987 654','']];
-   try{const X=await loadXLSX();const ws=X.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:14},{wch:16},{wch:20},{wch:26},{wch:16},{wch:20}];const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,'Djeca');X.writeFile(wb,'predlozak-djeca.xlsx')}
+ kidexp:(d,el)=>guard(el,async()=>{const kids=active(S.children).sort(byName);
+   const rows=[['Ime i prezime','Ime roditelja','Email','Telefon','Mjesečna uplata (KM)'],...kids.map(c=>{const f=(S.fee||{})[c.id];return[c.name,c.parent||'',c.email||'',c.phone||'',f!=null?f:'']})];
+   const fn='djeca-'+sarDate(Date.now());
+   try{const X=await loadXLSX();const ws=X.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:26},{wch:22},{wch:28},{wch:16},{wch:20}];const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,'Djeca');X.writeFile(wb,fn+'.xlsx')}
+   catch(e){const csv='\ufeff'+rows.map(r=>r.map(v=>{v=String(v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(';')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=fn+'.csv';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000)}
+   toast(`Izvezeno ${kids.length} djece`)},'Pripremam…'),
+ imptpl:(d,el)=>guard(el,async()=>{const rows=[['Ime i prezime','Ime roditelja','Email','Telefon','Mjesečna uplata (KM)'],['Amar Hodžić','Selma Hodžić','selma@primjer.ba','061 123 456',50],['Lejla Begić','Emir Begić','','062 987 654','']];
+   try{const X=await loadXLSX();const ws=X.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:24},{wch:22},{wch:28},{wch:16},{wch:20}];const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,'Djeca');X.writeFile(wb,'predlozak-djeca.xlsx')}
    catch(e){const csv='\ufeff'+rows.map(r=>r.join(';')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='predlozak-djeca.csv';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000)}},'Pripremam…'),
  impparse:()=>{const t=$('#imptxt').value;if(!t.trim())return toast('Zalijepite redove ili izaberite fajl');IMP={rows:analyzeRows(splitRows(t))};impSheet()},
  impgo:(d,el)=>guard(el,async()=>{const ok=IMP.rows.filter(r=>r.st==='ok');
    const ins=ok.length?await q(sb.from('djeca').insert(ok.map(r=>({ime:r.name,roditelj:r.parent||null,email_roditelja:r.email||null,telefon_roditelja:r.phone||null,kanali:r.email?['email']:[]}))).select('*')):[];
    ins.forEach(r=>S.children.push(mapC(r)));
    const byName=new Map(ins.map(r=>[String(r.ime).toLowerCase(),r.id]));
-   const fees=[...ok.filter(r=>r.fee!=null).map(r=>({id:byName.get(r.name.toLowerCase()),fee:r.fee})),...IMP.rows.filter(r=>r.st==='fee').map(r=>({id:r.id,fee:r.fee}))].filter(f=>f.id);
-   let bad=0;S.fee=S.fee||{};
+   const fees=[...ok.filter(r=>r.fee!=null).map(r=>({id:byName.get(r.name.toLowerCase()),fee:r.fee})),...IMP.rows.filter(r=>r.st==='fee'&&r.feeCh).map(r=>({id:r.id,fee:r.fee}))].filter(f=>f.id);
+   let bad=0,nu=0,badU=0;S.fee=S.fee||{};
+   await Promise.all(IMP.rows.filter(r=>r.st==='fee'&&Object.keys(r.upd).length).map(r=>q(sb.from('djeca').update(r.upd).eq('id',r.id).select('*').single()).then(x=>{const i=S.children.findIndex(c=>c.id===r.id);if(i>=0)S.children[i]=mapC(x);nu++}).catch(()=>{badU++})));
    await Promise.all(fees.map(f=>q(sb.rpc('postavi_clanarinu',{p_dijete:f.id,p_iznos:f.fee})).then(()=>{S.fee[f.id]=Math.round(f.fee*100)/100}).catch(()=>{bad++})));
    IMP=null;closeSheet();render();
-   toast([ins.length?`Uvezeno ${ins.length} djece`:'',fees.length-bad?`upisano ${fees.length-bad} mjesečnih uplata`:'',bad?`${bad} uplata nije sačuvano`:''].filter(Boolean).join(', '))},'Uvozim…'),
+   toast([ins.length?`Uvezeno ${ins.length} djece`:'',nu?`dopunjeno ${nu} djece`:'',fees.length-bad?`upisano ${fees.length-bad} mjesečnih uplata`:'',bad?`${bad} uplata nije sačuvano`:'',badU?`${badU} djece nije dopunjeno`:''].filter(Boolean).join(', '))},'Uvozim…'),
  send:d=>sendTo(d.k),
  chtog:(d,el)=>{const c=S.children.find(x=>x.id===d.id);if(!c)return;const on=!c.ch.includes(d.k);
    const next=on?[...c.ch,d.k]:c.ch.filter(k=>k!==d.k);const prev=c.ch;c.ch=['email','viber','whatsapp'].filter(k=>next.includes(k));
