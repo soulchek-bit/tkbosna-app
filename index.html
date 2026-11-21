@@ -17,12 +17,12 @@
 :root{--bg:#f3f5ef;--card:#fff;--ink:#16201a;--muted:#667068;--line:#e1e5dc;--brand:#2b6436;--brand2:#e7f1e3;--danger:#b3261e;--r:16px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-header{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+header{position:fixed;top:0;left:0;right:0;z-index:5;-webkit-transform:translateZ(0);transform:translateZ(0);background:var(--brand);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 header h1{font-size:17px;margin:0;font-weight:650;display:flex;align-items:center;gap:8px}
 header h1 i{width:18px;height:18px;border-radius:50%;background:#d6e34b;display:inline-block;box-shadow:inset -3px 0 0 rgba(0,0,0,.08)}
 .rolechip{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:999px;padding:8px 12px;font:inherit;font-size:14px;display:flex;align-items:center;gap:6px;max-width:55%}
 .rolechip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-main{max-width:640px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto;padding:calc(var(--hh,calc(env(safe-area-inset-top) + 58px)) + 16px) 16px calc(96px + env(safe-area-inset-bottom))}
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{flex:1;max-width:160px;border:0;background:none;padding:9px 4px 11px;font:inherit;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
 nav button svg{width:23px;height:23px}
@@ -475,7 +475,7 @@ function showLogin(msg,email){
  <p class="note">Pristupne podatke dobijate od uprave kluba.</p></div>`;
 }
 function loginError(msg){const e=$('#lerr');if(!e)return showLogin(msg);e.textContent=msg;e.hidden=false;const b=$('#lb');b.disabled=false;b.textContent='Prijavi se'}
-function showLoading(t){$('#main').innerHTML=`<div class="loading"><div class="spin"></div><p>${esc(t||'Učitavam…')}</p></div>`}
+function showLoading(t){setHH();$('#main').innerHTML=`<div class="loading"><div class="spin"></div><p>${esc(t||'Učitavam…')}</p></div>`}
 function showPaused(){
  $('#nav').innerHTML='';$('#acct').style.display='none';
  $('#main').innerHTML=`<div class="loading" style="padding-top:16vh"><div class="offic" style="background:#fff4e0;color:#b26a00">‖</div><h2 style="margin:10px 0 4px">Pristup je privremeno obustavljen</h2>
@@ -531,10 +531,20 @@ function render(scroll){
  if(!ok.includes(view))view=tabs[0][0];
  const act=view==='sati'?'unos':(view==='radno'||view==='lista')?'pregled':view==='izvjestaj'?(reportFrom==='pregled'||reportFrom==='admin'?reportFrom:'djeca'):view;
  $('#nav').innerHTML=tabs.map(t=>`<button class="${t[0]===act?'on':''}" data-act="go" data-v="${t[0]}">${t[2]}${t[1]}</button>`).join('');
- $('#main').innerHTML=(isSuper()&&S.paused?`<div class="pbanner">Aplikacija je pauzirana – treneri i direktor nemaju pristup. <button data-act="go" data-v="admin">Admin</button></div>`:'')+V[view]();
- if(scroll)window.scrollTo(0,0);
+ let body;try{body=V[view]()}catch(e){console.error(e);body=`<div class="loading" style="padding-top:12vh"><div class="offic">!</div><h2 style="margin:10px 0 4px">Greška u prikazu</h2><p class="muted" style="margin:0 0 6px">Pošaljite ovu poruku Amiru:</p><p class="hint" style="word-break:break-word;user-select:text">${esc(view+': '+(e&&e.message||e)+' '+((e&&e.stack||'').split('\n')[1]||''))}</p><button class="btn big ok" data-act="reload">Osvježi</button></div>`}
+ $('#main').innerHTML=(isSuper()&&S.paused?`<div class="pbanner">Aplikacija je pauzirana – treneri i direktor nemaju pristup. <button data-act="go" data-v="admin">Admin</button></div>`:'')+body;
+ setHH();
+ if(scroll){window.scrollTo(0,0);requestAnimationFrame(()=>{if(window.scrollY>document.documentElement.scrollHeight-innerHeight)window.scrollTo(0,0)})}
+ else if(window.scrollY>document.documentElement.scrollHeight-innerHeight)window.scrollTo(0,0);
  syncHistory();
 }
+
+/* ---------- zaglavlje (fiksno) + osvježavanje prikaza po povratku u aplikaciju (iOS) ---------- */
+function setHH(){const hd=document.querySelector('header');if(hd)document.documentElement.style.setProperty('--hh',hd.offsetHeight+'px')}
+setHH();window.addEventListener('resize',setHH);window.addEventListener('orientationchange',()=>setTimeout(setHH,300));
+function repaint(){setHH();if(me&&!document.querySelector('#sheet .sheet'))render()}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(repaint,50)});
+window.addEventListener('pageshow',e=>{if(e.persisted)setTimeout(repaint,50)});
 const V={};
 /* ---------- nazad (dugme, swipe s ivice, Android "nazad") ---------- */
 let reportFrom='djeca';
