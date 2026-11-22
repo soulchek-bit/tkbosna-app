@@ -771,7 +771,7 @@ const hmNow=()=>new Date().toLocaleTimeString('bs-BA',{timeZone:'Europe/Sarajevo
 let RPT={q:'',all:false,pay:'all'},PAYSEQ={};
 V.djeca=()=>{
  const es=S.entries.filter(e=>e.date.startsWith(month)),bc=groupBy(es,e=>e.childId);
- const withTr=S.children.filter(c=>bc[c.id]);
+ const fee=S.fee||{},withTr=S.children.filter(c=>bc[c.id]||(!c.archived&&(fee[c.id]!=null||payLevel(c.id)>0)));
  const allK=S.children.filter(c=>!c.archived||bc[c.id]);
  const base=RPT.all?allK:withTr;
  const cnt={all:allK.length,0:0,1:0,2:0};base.forEach(c=>cnt[payLevel(c.id)]++);
@@ -780,7 +780,7 @@ V.djeca=()=>{
  <div class="plbl">Filter po statusu uplata</div><div class="pseg">${[['all','Svi',''],['0','Duguju',''],['1','Djelimično',''],['2','Plaćeno','']].map(x=>`<button class="sg ${x[2]} ${RPT.pay===x[0]?'on':''}" data-act="payf" data-f="${x[0]}">${x[1]}<span class="n">${cnt[x[0]]}</span></button>`).join('')}</div>
  <div class="r6030">${sbox(`<input id="rq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" value="${esc(RPT.q)}">`,'rq')}<button class="fbtn ${RPT.all?'on':''}" data-act="rall">Sva djeca</button></div>`;
  h+=`<div class="rows">`+(list.sort(byName).map(c=>{const l=bc[c.id]||[],pl=payLevel(c.id);
-  return `<button class="row rkid" data-act="report" data-id="${c.id}" data-n="${esc(norm(c.name))}" ${RPT.q&&!norm(c.name).includes(norm(RPT.q))?'style="display:none"':''}><span class="av ${l.length&&pl===1?'pg1':l.length&&pl===2?'pg2':''}">${esc(initials(c.name))}</span><div class="grow"><div class="t">${esc(c.name)}</div><div class="s">${l.length?`${l.length} treninga · ${hrs(sum(l,e=>e.hours))}`:'Nema treninga'}</div></div><span class="amt">${km(sum(l,e=>e.amount))}</span>${I.chev}</button>`}).join('')||`<div class="row"><div class="grow s">${RPT.pay!=='all'?'Nema djece s ovim statusom uplate.':'Nema djece s treninzima u '+monthLabel(month)+'.'}</div></div>`)+`</div>`;
+  return `<button class="row rkid" data-act="report" data-id="${c.id}" data-n="${esc(norm(c.name))}" ${RPT.q&&!norm(c.name).includes(norm(RPT.q))?'style="display:none"':''}><span class="av ${pl===1?'pg1':pl===2?'pg2':''}">${esc(initials(c.name))}</span><div class="grow"><div class="t">${esc(c.name)}</div><div class="s">${l.length?`${l.length} treninga · ${hrs(sum(l,e=>e.hours))}`:'Nema treninga'}${fee[c.id]!=null?' · mjesečna':''}</div></div><span class="amt">${km(sum(l,e=>e.amount)+(fee[c.id]||0))}</span>${I.chev}</button>`}).join('')||`<div class="row"><div class="grow s">${RPT.pay!=='all'?'Nema djece s ovim statusom uplate.':'Nema djece s treninzima u '+monthLabel(month)+'.'}</div></div>`)+`</div>`;
  h+=`<button class="btn" data-act="csv">Preuzmi sve unose za ${monthLabel(month)} (Excel / CSV)</button><button class="btn" data-act="wcsv">Preuzmi radno vrijeme za ${monthLabel(month)} (CSV)</button>`;
  return h+`<p class="note">Krug sa zelenim rubom: plaćena jedna uplata · pun zeleni krug: plaćene obje.</p>`;
 };
