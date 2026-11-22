@@ -581,7 +581,7 @@ function performBack0(){const t=backTarget();if(!t)return false;
  restore();requestAnimationFrame(restore);setTimeout(restore,120);
  if(t!=='unos'&&t!=='postavke')Promise.resolve(refresh()).then(()=>requestAnimationFrame(restore)).catch(()=>{});return true}
 let hasEntry=false,lastBack=0,lastSrc='';
-function syncHistory(){try{if(backTarget()&&!hasEntry){history.pushState({tk:1},'');hasEntry=true}}catch(e){}}
+function syncHistory(){if(navigator.standalone===true)return;try{if(backTarget()&&!hasEntry){history.pushState({tk:1},'');hasEntry=true}}catch(e){}}
 window.addEventListener('popstate',()=>{hasEntry=false;if(lastSrc==='app'&&Date.now()-lastBack<800){syncHistory();return}lastBack=Date.now();lastSrc='hist';performBack();syncHistory()});
 function goBack(){if(lastSrc==='hist'&&Date.now()-lastBack<800)return;lastBack=Date.now();lastSrc='app';performBack();syncHistory()}
 if(navigator.standalone===true){
