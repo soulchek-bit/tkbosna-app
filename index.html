@@ -536,7 +536,7 @@ try{history.scrollRestoration='manual'}catch(e){}
 function repaintMain(){const m=$('#main');if(!m)return;m.style.display='none';void m.offsetHeight;m.style.display='';m.style.webkitTransform='translateZ(0)';requestAnimationFrame(()=>requestAnimationFrame(()=>{m.style.webkitTransform=''}))}
 function render(scroll){
  if(!me)return;
- if(PREVVIEW&&PREVVIEW!==view)SAVEDY[PREVVIEW]=window.scrollY;PREVVIEW=view;
+ if(PREVVIEW&&PREVVIEW!==view)SAVEDY[PREVVIEW]=window.scrollY;PREVVIEW=view;if(!INBACK)lastSrc='';
  $('#club').textContent=CFG.club;
  $('#who').textContent=me.name;
  const tabs=isDir()?[['pregled','Pregled',I.chart],['djeca','Izvještaji',I.doc],['unos','Unos',I.plus],['postavke','Postavke',I.gear]].concat(isSuper()?[['admin','Admin',I.shield]]:[])
@@ -571,17 +571,19 @@ function backTarget(){
  if(view==='radno'||view==='lista')return 'pregled';
  return null;
 }
-function performBack(){const t=backTarget();if(!t)return false;
+let INBACK=false;
+function performBack(){INBACK=true;try{return performBack0()}finally{INBACK=false}}
+function performBack0(){const t=backTarget();if(!t)return false;
  if(t==='sheet'){closeSheet();return true}
  if(t==='step'){W.step--;render(true);return true}
  view=t;render();const y=SAVEDY[t]||0;
  let last=null;const restore=()=>{if(last!==null&&Math.abs(window.scrollY-last)>2)return;repaintMain();const ty=Math.min(y,Math.max(0,document.documentElement.scrollHeight-innerHeight));window.scrollTo(0,ty);last=window.scrollY};
  restore();requestAnimationFrame(restore);setTimeout(restore,120);
  if(t!=='unos'&&t!=='postavke')Promise.resolve(refresh()).then(()=>requestAnimationFrame(restore)).catch(()=>{});return true}
-let hasEntry=false;
+let hasEntry=false,lastBack=0,lastSrc='';
 function syncHistory(){try{if(backTarget()&&!hasEntry){history.pushState({tk:1},'');hasEntry=true}}catch(e){}}
-window.addEventListener('popstate',()=>{hasEntry=false;performBack();syncHistory()});
-function goBack(){if(hasEntry){try{history.back();return}catch(e){}}performBack()}
+window.addEventListener('popstate',()=>{hasEntry=false;if(lastSrc==='app'&&Date.now()-lastBack<800){syncHistory();return}lastBack=Date.now();lastSrc='hist';performBack();syncHistory()});
+function goBack(){if(lastSrc==='hist'&&Date.now()-lastBack<800)return;lastBack=Date.now();lastSrc='app';performBack();syncHistory()}
 if(navigator.standalone===true){
  let sx=null,sy=0,t0=0;const hint=document.createElement('div');hint.id='swipehint';hint.textContent='‹';document.body.appendChild(hint);
  document.addEventListener('touchstart',e=>{const t=e.touches[0];sx=(e.touches.length===1&&t.clientX<26&&backTarget())?t.clientX:null;sy=t.clientY;t0=Date.now()},{passive:true});
