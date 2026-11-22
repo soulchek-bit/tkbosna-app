@@ -67,6 +67,8 @@ input[type=date],input[type=month],select{font:inherit;font-size:15px;padding:8p
 .bar h2{margin:0}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px}
+.kpis.k4{grid-template-columns:1fr 1fr}.kpi small{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+.kpi.main.sm b{font-size:26px}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px}
 .kpi span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .kpi b{font-size:20px}
@@ -594,6 +596,16 @@ if(navigator.standalone===true){
 /* ---------- UNOS ---------- */
 function addMin(hm,m){if(!hm)return '';const[h,mm]=hm.split(':').map(Number);let t=((h*60+mm+Math.round(m))%1440+1440)%1440;return pad(Math.floor(t/60))+':'+pad(t%60)}
 const tRange=e=>e.from?`${e.from}–${e.to||''}`:'';
+/* ---------- termini: isti trener + datum + vrijeme od–do = jedan trening ---------- */
+const tMin=t=>{const p=String(t).split(':');return (+p[0])*60+(+p[1]||0)};
+function sessions(es){const g={};es.forEach(e=>{const k=e.from?`${e.trainerId}|${e.date}|${e.from}|${e.to}`:`${e.trainerId}|${e.date}|${e.typeName}|${e.hours}|-`;(g[k]=g[k]||[]).push(e)});return Object.values(g)}
+function courtMin(es){let tot=0;Object.values(groupBy(es,e=>e.trainerId+'|'+e.date)).forEach(l=>{const iv=[];
+  sessions(l).forEach(ss=>{const e=ss[0];if(e.from&&e.to){let a=tMin(e.from),b=tMin(e.to);if(b<=a)b+=1440;iv.push([a,b])}else tot+=Math.round(e.hours*60)});
+  iv.sort((x,y)=>x[0]-y[0]);let cs=0,ce=-1;iv.forEach(([a,b])=>{if(a>ce){if(ce>cs)tot+=ce-cs;cs=a;ce=b}else if(b>ce)ce=b});if(ce>cs)tot+=ce-cs});return tot}
+function tStats(es){return{term:sessions(es).length,court:courtMin(es),kids:new Set(es.map(e=>e.childId)).size,childH:sum(es,e=>e.hours),n:es.length,amt:sum(es,e=>e.amount)}}
+const hMin=m=>{m=Math.round(m||0);return m%30===0?num(m/60)+' h':durText(m/60)};
+const termTxt=n=>n+' '+(n%10===1&&n%100!==11?'termin':'termina');
+const kpi4=st=>`<div class="kpis k4"><div class="kpi"><span>Termina</span><b>${st.term}</b><small>stvarnih treninga</small></div><div class="kpi"><span>Sati na terenu</span><b>${hMin(st.court)}</b><small>svaki termin jednom</small></div><div class="kpi"><span>Djece</span><b>${st.kids}</b><small>različite djece</small></div><div class="kpi"><span>Dječijih sati</span><b>${num(st.childH)}</b><small>${st.n} zapisa · za obračun</small></div></div>`;
 const DUR=()=>(S.durations&&S.durations.length?S.durations:HOURS);
 function durLabel(x){const m=Math.round(x*60);if(m<60)return{b:String(m),e:'min'};const h=Math.floor(m/60),mm=m%60;
  if(mm===0)return{b:String(h),e:h===1?'sat':h<5?'sata':'sati'};if(mm===30)return{b:num(r2(x)),e:'sati'};return{b:h+':'+pad(mm),e:'h'}}
@@ -679,19 +691,19 @@ V.pregled=()=>{
  const trOpts=S.trainers.filter(t=>t.id===trFilter||(!t.hidden&&!hiddenTr(t.id)&&(!t.archived||S.entries.some(e=>e.trainerId===t.id&&e.date.startsWith(month))))).sort(byName);
  let h=`<div class="bar"><h2>Pregled</h2><input type="month" class="mth" data-change="month" value="${month}"></div><div class="r6030"><select data-change="tr"><option value="">Svi treneri</option>${trOpts.map(t=>`<option value="${t.id}" ${trFilter===t.id?'selected':''}>${esc(t.name)}${t.archived||t.hidden?' (neaktivan)':''}</option>`).join('')}</select><button class="fbtn" data-act="reload">Osvježi</button></div>`;
  h+=`<div class="kpis"><div class="kpi main"><span>Ukupno · ${monthLabel(month)}</span><b>${km(sum(es,e=>e.amount))}</b></div>
-  <div class="kpi"><span>Sati</span><b>${num(sum(es,e=>e.hours))}</b></div><div class="kpi"><span>Treninga</span><b>${es.length}</b></div><div class="kpi"><span>Djece</span><b>${new Set(es.map(e=>e.childId)).size}</b></div></div>`;
+  </div>${kpi4(tStats(es))}`;
  if(!es.length)return h+`<div class="empty">Nema unosa za odabrani period.</div>`+workSection();
  const td=es.filter(e=>e.date===today());
- if(month===today().slice(0,7))h+=`<h3>Danas</h3><div class="rows"><button class="row" data-act="list" data-k="danas"><div class="grow"><div class="t">${td.length} ${td.length===1?'trening':'treninga'} · ${num(sum(td,e=>e.hours))} h</div><div class="s">${new Set(td.map(e=>e.childId)).size} djece</div></div><span class="amt">${km(sum(td,e=>e.amount))}</span>${I.chev}</button></div>`;
+ if(month===today().slice(0,7))h+=`<h3>Danas</h3><div class="rows"><button class="row" data-act="list" data-k="danas"><div class="grow">${(st=>`<div class="t">${termTxt(st.term)} · ${hMin(st.court)} na terenu</div><div class="s">${st.kids} djece · ${st.n} zapisa</div>`)(tStats(td))}</div><span class="amt">${km(sum(td,e=>e.amount))}</span>${I.chev}</button></div>`;
  const bc=groupBy(es,e=>e.childId);
  h+=`<h3>Po djetetu</h3><div class="rows">`+Object.keys(bc).map(id=>({id,l:bc[id],a:sum(bc[id],e=>e.amount)})).sort((a,b)=>b.a-a.a).map(x=>
   `<button class="row" data-act="report" data-id="${x.id}"><span class="av">${esc(initials(child(x.id).name))}</span><div class="grow"><div class="t">${esc(child(x.id).name)}</div><div class="s">${x.l.length} treninga · ${hrs(sum(x.l,e=>e.hours))}</div></div><span class="amt">${km(x.a)}</span>${I.chev}</button>`).join('')+`</div>`;
  const bt=groupBy(es,e=>e.typeName),tot=sum(es,e=>e.amount);
  h+=`<h3>Po vrsti treninga</h3><div class="rows">`+Object.keys(bt).map(k=>({k,l:bt[k],a:sum(bt[k],e=>e.amount)})).sort((a,b)=>b.a-a.a).map(x=>{const c=typeColor(x.l[0]);
-  return `<button class="row" data-act="list" data-k="vrsta" data-v="${esc(x.k)}"><div class="grow"><div class="t">${esc(x.k)}</div><div class="s">${x.l.length} treninga · ${hrs(sum(x.l,e=>e.hours))}</div><div class="track" style="--c:${c}"><i style="width:${tot?(x.a/tot*100).toFixed(1):0}%"></i></div></div><span class="amt">${km(x.a)}</span>${I.chev}</button>`}).join('')+`</div>`;
+  return `<button class="row" data-act="list" data-k="vrsta" data-v="${esc(x.k)}"><div class="grow"><div class="t">${esc(x.k)}</div><div class="s">${(st=>`${termTxt(st.term)} · ${hMin(st.court)} · ${st.kids} djece`)(tStats(x.l))}</div><div class="track" style="--c:${c}"><i style="width:${tot?(x.a/tot*100).toFixed(1):0}%"></i></div></div><span class="amt">${km(x.a)}</span>${I.chev}</button>`}).join('')+`</div>`;
  h+=workSection();
  if(!trFilter){const br=groupBy(es,e=>e.trainerId);
-  h+=`<h3>Po treneru</h3><div class="rows">`+Object.keys(br).filter(id=>!hiddenTr(id)).map(id=>`<button class="row" data-act="list" data-k="trener" data-v="${id}"><div class="grow"><div class="t">${esc(trName(id))}</div><div class="s">${br[id].length} treninga · ${hrs(sum(br[id],e=>e.hours))}</div></div><span class="amt">${km(sum(br[id],e=>e.amount))}</span>${I.chev}</button>`).join('')+`</div>`;}
+  h+=`<h3>Po treneru</h3><div class="rows">`+Object.keys(br).filter(id=>!hiddenTr(id)).map(id=>`<button class="row" data-act="list" data-k="trener" data-v="${id}"><div class="grow"><div class="t">${esc(trName(id))}</div><div class="s">${(st=>`${termTxt(st.term)} · ${hMin(st.court)} na terenu · ${st.kids} djece`)(tStats(br[id]))}</div></div><span class="amt">${km(sum(br[id],e=>e.amount))}</span>${I.chev}</button>`).join('')+`</div>`;}
  const bd=groupBy(es,e=>e.date);
  h+=`<h3>Po danima (iznos po djetetu)</h3><p class="hint" style="margin:-4px 4px 8px">Tapnite bilo koji trening da ga izmijenite ili obrišete.</p>`;
  Object.keys(bd).sort().reverse().forEach((d,i)=>{
@@ -714,7 +726,7 @@ V.lista=()=>{
  const title=LST.k==='danas'?'Danas':LST.k==='vrsta'?esc(LST.v):esc(trName(LST.v));
  const sub=LST.k==='danas'?fmtDay(today()):monthLabel(month);
  let h=`<div class="bar sub"><button class="back" data-act="back">${I.left}Pregled</button>${LST.k!=='danas'?`<input type="month" class="mth" data-change="month" value="${month}">`:''}</div><h2 style="margin-bottom:0">${title}</h2><div class="muted" style="font-size:14px;margin-bottom:12px">${sub}</div>
- <div class="kpis"><div class="kpi"><span>Treninga</span><b>${es.length}</b></div><div class="kpi"><span>Sati</span><b>${num(sum(es,e=>e.hours))}</b></div><div class="kpi"><span>Iznos</span><b style="font-size:17px">${km(sum(es,e=>e.amount))}</b></div></div>`;
+ <div class="kpis"><div class="kpi main sm"><span>Iznos</span><b>${km(sum(es,e=>e.amount))}</b></div></div>${kpi4(tStats(es))}`;
  if(LST.k==='trener')h+=`<button class="btn" data-act="radno" data-id="${LST.v}">Radno vrijeme ›</button>`;
  if(!es.length)return h+`<div class="empty" style="margin-top:12px">Nema treninga.</div>`;
  const bd=groupBy(es,e=>e.date);
@@ -724,10 +736,19 @@ V.lista=()=>{
 };
 
 /* ---------- RADNO VRIJEME ---------- */
-function workDays(rows){
- const bd=groupBy(rows,r=>r.date);
- return Object.keys(bd).sort().reverse().map(d=>{const l=bd[d].sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
-  return `<div class="dayhead"><span>${fmtDay(d)}</span><span class="muted">${fmtMin(sum(l,liveMin))}</span></div><div class="rows">${l.map(r=>workRow(r,WD)).join('')}</div>`}).join('');
+function workCmp(wrows,ents){const wd=groupBy(wrows,r=>r.date),ed=groupBy(ents,e=>e.date),days=[...new Set([...Object.keys(wd),...Object.keys(ed)])];
+ let noWork=0,over=0,cw=0;const per={};days.forEach(d=>{const w=sum(wd[d]||[],liveMin),c=courtMin(ed[d]||[]);per[d]={w,c};if(w>0)cw+=c;if(c>0&&w===0)noWork++;else if(w>0&&c>w+5)over++});
+ const w=sum(wrows,liveMin),c=courtMin(ents);return{w,c,cw,diff:w-c,noWork,over,per}}
+const cmpBadges=x=>`${x.noWork?`<span class="wb warn">${x.noWork} ${x.noWork===1?'dan':'dana'} bez evidentiranog rada</span>`:''}${x.over?`<span class="wb warn">teren duži od rada: ${x.over} ${x.over===1?'dan':'dana'}</span>`:''}`;
+const cmpLine=x=>!x.w&&!x.c?'nema rada ni treninga':`rad ${hMin(x.w)} · na terenu ${hMin(x.c)} · razlika ${x.diff<0?'−':''}${hMin(Math.abs(x.diff))}`;
+const cmpBar=x=>x.w||x.c?`<div class="track" style="--c:${x.cw>x.w+5||!x.w?'#d08a1e':'var(--brand)'}"><i style="width:${x.w?Math.min(100,x.cw/x.w*100).toFixed(0):100}%"></i></div><div class="s" style="font-size:12px;margin-top:3px">${x.w?Math.round(Math.min(100,x.cw/x.w*100))+'% radnog vremena na terenu':'nema evidentiranog rada'}</div>`:'';
+function workDays(rows,ents){
+ const bd=groupBy(rows,r=>r.date),ed=ents?groupBy(ents,e=>e.date):{};
+ return [...new Set([...Object.keys(bd),...Object.keys(ed)])].sort().reverse().map(d=>{const l=(bd[d]||[]).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
+  if(!ents)return `<div class="dayhead"><span>${fmtDay(d)}</span><span class="muted">${fmtMin(sum(l,liveMin))}</span></div><div class="rows">${l.map(r=>workRow(r,WD)).join('')}</div>`;
+  const w=sum(l,liveMin),c=courtMin(ed[d]||[]),n=sessions(ed[d]||[]).length,df=w-c;
+  const badge=c>0&&w===0?'<span class="wb warn">nema evidentiranog rada</span>':w>0&&c>w+5?'<span class="wb warn">teren duži od rada</span>':'';
+  return `<div class="dayhead"><span>${fmtDay(d)} ${badge}</span><span class="muted">${w?'razlika '+(df<0?'−':'')+hMin(Math.abs(df)):''}</span></div><div class="s" style="margin:-4px 4px 6px;font-size:13px;color:var(--muted)">rad ${hMin(w)} · teren ${hMin(c)} · ${termTxt(n)}</div>${l.length?`<div class="rows">${l.map(r=>workRow(r,WD)).join('')}</div>`:''}`}).join('');
 }
 let WD=false,radnoTr=null;
 V.sati=()=>{
@@ -744,10 +765,10 @@ V.radno=()=>{
  const tr=S.entries.filter(e=>e.trainerId===radnoTr&&e.date.startsWith(month));
  const days=new Set(rows.map(r=>r.date)).size,tot=sum(rows,liveMin);
  let h=`<div class="bar sub"><button class="back" data-act="back">${I.left}Pregled</button><input type="month" class="mth" data-change="month" value="${month}"></div><h2>${esc(t.name)}</h2>
- <div class="kpis"><div class="kpi"><span>Rad</span><b>${fmtShort(tot)}</b></div><div class="kpi"><span>Treninzi</span><b>${num(sum(tr,e=>e.hours))} h</b></div><div class="kpi"><span>Dana</span><b>${days}</b></div></div>
+ ${(x=>`<div class="kpis"><div class="kpi"><span>Rad</span><b>${hMin(x.w)}</b></div><div class="kpi"><span>Na terenu</span><b>${hMin(x.c)}</b></div><div class="kpi"><span>Razlika</span><b>${x.diff<0?'−':''}${hMin(Math.abs(x.diff))}</b></div></div><div class="card" style="padding:10px 14px;margin-bottom:8px">${cmpBar(x)}${cmpBadges(x)?`<div style="margin-top:6px">${cmpBadges(x)}</div>`:''}</div>`)(workCmp(rows,tr))}
  <button class="btn" data-act="wadd">+ Dodaj smjenu ručno</button>`;
- if(!rows.length)return h+`<div class="empty" style="margin-top:12px">Nema evidentiranog rada za ${monthLabel(month)}.</div>`;
- return h+workDays(rows);
+ if(!rows.length&&!tr.length)return h+`<div class="empty" style="margin-top:12px">Nema evidentiranog rada za ${monthLabel(month)}.</div>`;
+ return h+workDays(rows,tr);
 };
 function workSection(){
  const ws=S.work.filter(r=>r.date.startsWith(month)&&(!trFilter||r.trainerId===trFilter));
@@ -756,7 +777,7 @@ function workSection(){
  const ids=[...new Set(S.trainers.filter(t=>!t.archived&&t.role!=='superadmin').map(t=>t.id).concat(ws.map(r=>r.trainerId)))].filter(id=>(!trFilter||id===trFilter)&&!hiddenTr(id));
  let h=`<h3>Radno vrijeme</h3>${flags?`<div class="wwarn" style="margin-bottom:8px">${flags} ${flags===1?'zapis čeka':'zapisa čeka'} provjeru – otvorite trenera i potvrdite ili ispravite.</div>`:''}<div class="rows">`;
  h+=ids.map(id=>{const l=ws.filter(r=>r.trainerId===id),tr=S.entries.filter(e=>e.trainerId===id&&e.date.startsWith(month)),f=l.filter(r=>r.flag).length,live=l.some(r=>!r.end);
-  return `<button class="row" data-act="radno" data-id="${id}"><div class="grow"><div class="t">${esc(trName(id))} ${live?'<span class="wb live">radi</span>':''} ${f?`<span class="wb warn">${f} za provjeru</span>`:''}</div><div class="s">${new Set(l.map(r=>r.date)).size} dana · rad ${fmtMin(sum(l,liveMin))} · treninzi ${num(sum(tr,e=>e.hours))} h</div></div>${I.chev}</button>`}).join('')||'<div class="row"><div class="grow s">Nema trenera.</div></div>';
+  return `<button class="row" data-act="radno" data-id="${id}"><div class="grow"><div class="t">${esc(trName(id))} ${live?'<span class="wb live">radi</span>':''} ${f?`<span class="wb warn">${f} za provjeru</span>`:''}</div>${(x=>`<div class="s">${cmpLine(x)}</div>${cmpBar(x)}${cmpBadges(x)?`<div style="margin-top:4px">${cmpBadges(x)}</div>`:''}`)(workCmp(l,tr))}</div>${I.chev}</button>`}).join('')||'<div class="row"><div class="grow s">Nema trenera.</div></div>';
  return h+`</div>`;
 }
 function downloadWorkCSV(){
