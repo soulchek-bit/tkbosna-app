@@ -708,7 +708,7 @@ V.pregled=()=>{
  h+=`<h3>Po danima (iznos po djetetu)</h3><p class="hint" style="margin:-4px 4px 8px">Tapnite bilo koji trening da ga izmijenite ili obrišete.</p>`;
  Object.keys(bd).sort().reverse().forEach((d,i)=>{
   const perKid=groupBy(bd[d],e=>e.childId);
-  h+=`<details class="day" ${i===0?'open':''}><summary><span>${fmtDay(d)}<br><span class="s">${bd[d].length} treninga · ${Object.keys(perKid).length} djece</span></span><span class="amt">${km(sum(bd[d],e=>e.amount))}</span></summary>`;
+  h+=`<details class="day" ${i===0?'open':''}><summary><span>${fmtDay(d)}<br><span class="s">${termTxt(sessions(bd[d]).length)} · ${Object.keys(perKid).length} djece</span></span><span class="amt">${km(sum(bd[d],e=>e.amount))}</span></summary>`;
   Object.keys(perKid).sort((a,b)=>child(a).name.localeCompare(child(b).name,'bs')).forEach(cid=>{
    const l=perKid[cid];
    h+=`<div class="kidhead"><span>${esc(child(cid).name)}</span><span>${km(sum(l,e=>e.amount))}</span></div>`+l.sort((a,b)=>a.ts-b.ts).map(e=>`<button class="row sub" data-act="edit" data-id="${e.id}"><span class="dot" style="--c:${typeColor(e)}"></span><div class="grow s"><b style="color:var(--ink);font-weight:600">${esc(e.typeName)}</b> · ${hrs(e.hours)}${e.from?' · '+tRange(e):''} · ${esc(trName(e.trainerId))}</div><span class="s">${km(e.amount)}</span><span class="editlbl">Uredi</span></button>`).join('');
