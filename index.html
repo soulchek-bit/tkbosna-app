@@ -533,7 +533,7 @@ function render(scroll){
  $('#nav').innerHTML=tabs.map(t=>`<button class="${t[0]===act?'on':''}" data-act="go" data-v="${t[0]}">${t[2]}${t[1]}</button>`).join('');
  let body;try{body=V[view]()}catch(e){console.error(e);body=`<div class="loading" style="padding-top:12vh"><div class="offic">!</div><h2 style="margin:10px 0 4px">Greška u prikazu</h2><p class="muted" style="margin:0 0 6px">Pošaljite ovu poruku Amiru:</p><p class="hint" style="word-break:break-word;user-select:text">${esc(view+': '+(e&&e.message||e)+' '+((e&&e.stack||'').split('\n')[1]||''))}</p><button class="btn big ok" data-act="reload">Osvježi</button></div>`}
  $('#main').innerHTML=(isSuper()&&S.paused?`<div class="pbanner">Aplikacija je pauzirana – treneri i direktor nemaju pristup. <button data-act="go" data-v="admin">Admin</button></div>`:'')+body;
- setHH();
+ setHH();if(view==='postavke'&&CQ)applyCQ();
  if(scroll){window.scrollTo(0,0);requestAnimationFrame(()=>{if(window.scrollY>document.documentElement.scrollHeight-innerHeight)window.scrollTo(0,0)})}
  else if(window.scrollY>document.documentElement.scrollHeight-innerHeight)window.scrollTo(0,0);
  syncHistory();
@@ -868,7 +868,8 @@ function downloadCSV(){
 
 /* ---------- POSTAVKE ---------- */
 const OPEN={postavke:new Set(),admin:new Set()};
-let OPENKID=null;
+let OPENKID=null,CQ='';
+function applyCQ(){const v=CQ.trim().toLowerCase();document.querySelectorAll('.citem').forEach(b=>b.style.display=!v||b.dataset.n.includes(v)?'':'none')}
 function sec(scope,key,title,summary,body){const o=OPEN[scope].has(key);
  return `<div class="acc ${o?'open':''}"><button class="acc-h" data-act="acc" data-sc="${scope}" data-k="${key}"><span class="acc-t">${title}</span><span class="acc-s">${summary||''}</span><span class="acc-i">${I.chev}</span></button>${o?`<div class="acc-b">${typeof body==='function'?body():body}</div>`:''}</div>`}
 function accBar(scope,title){return `<div class="bar"><h2>${title}</h2><button class="xbtn accall" data-act="accall" data-sc="${scope}" ${OPEN[scope].size?'':'disabled'}>Zatvori sve</button></div>`}
@@ -880,7 +881,7 @@ V.postavke=()=>{
   <p class="hint">Cijena je u KM po satu. Nova cijena važi samo za nove unose – već uneseni treninzi zadržavaju cijenu s kojom su sačuvani.</p>`);
  h+=sec('postavke','trajanja','Ponuđena trajanja („Koliko sati?“)',DUR().length+'',()=>`<div class="rows" style="padding:12px"><div class="durs">${DUR().map((v,i)=>`<span class="dchip"><button data-act="dedit" data-i="${i}">${durText(v)}</button><button class="dx" data-act="ddel" data-i="${i}" aria-label="Obriši">✕</button></span>`).join('')}</div>
   <button class="btn" data-act="dadd">+ Dodaj trajanje</button></div><p class="hint">Tap na trajanje ga mijenja. Opcije se same poredaju od najkraćeg do najdužeg. Već uneseni treninzi se ne mijenjaju.</p>`);
- h+=sec('postavke','djeca','Djeca',active(S.children).length+'',()=>`<input id="cq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" style="margin-bottom:10px"><div class="rows set">`+active(S.children).sort(byName).map(c=>OPENKID!==c.id?`<button class="row ckrow citem" data-act="kidopen" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><div class="grow t">${esc(c.name)}</div><span class="cic ${c.email?'on':''}">${CH.email.ic}</span><span class="cic ${c.phone?'on':''}"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>${I.chev}</button>`:`<div class="item citem kidopen" data-n="${esc(c.name.toLowerCase())}"><button class="row ckrow ckhead" data-act="kidopen" data-id="${c.id}"><div class="grow t">${esc(c.name)}</div><span class="acc-i" style="transform:rotate(90deg)">${I.chev}</span></button><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div><div class="g2"><label>Telefon roditelja<input data-change="cphone" data-id="${c.id}" type="tel" inputmode="tel" placeholder="061 123 456" value="${esc(c.phone)}"></label><label>Mjesečna uplata (KM)<input data-change="cfee" data-id="${c.id}" type="text" inputmode="decimal" placeholder="npr. 50" value="${S.fee&&S.fee[c.id]!=null?num(S.fee[c.id]):''}"></label></div>${chanRow(c,'chtog')}</div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button><button class="addbtn" data-act="imp" style="border-top:1px solid var(--line)">⇪ Uvezi djecu iz Excela / Google Sheets</button><button class="addbtn" data-act="kidexp" style="border-top:1px solid var(--line)">⇩ Izvezi svu djecu u Excel</button></div>`);
+ h+=sec('postavke','djeca','Djeca',active(S.children).length+'',()=>`<input id="cq" class="search" type="search" placeholder="Traži dijete…" autocomplete="off" style="margin-bottom:10px" value="${esc(CQ)}"><div class="rows set">`+active(S.children).sort(byName).map(c=>OPENKID!==c.id?`<button class="row ckrow citem" data-act="kidopen" data-id="${c.id}" data-n="${esc(c.name.toLowerCase())}"><div class="grow t">${esc(c.name)}</div><span class="cic ${c.email?'on':''}">${CH.email.ic}</span><span class="cic ${c.phone?'on':''}"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>${I.chev}</button>`:`<div class="item citem kidopen" data-n="${esc(c.name.toLowerCase())}"><button class="row ckrow ckhead" data-act="kidopen" data-id="${c.id}"><div class="grow t">${esc(c.name)}</div><span class="acc-i" style="transform:rotate(90deg)">${I.chev}</span></button><div class="trow" style="grid-template-columns:1fr auto;align-items:end"><label>Ime i prezime<input data-change="cname" data-id="${c.id}" value="${esc(c.name)}"></label>${x('children',c.id)}</div><div class="g2"><label>Roditelj<input data-change="cparent" data-id="${c.id}" value="${esc(c.parent)}"></label><label>Email roditelja<input data-change="cemail" data-id="${c.id}" type="email" value="${esc(c.email)}"></label></div><div class="g2"><label>Telefon roditelja<input data-change="cphone" data-id="${c.id}" type="tel" inputmode="tel" placeholder="061 123 456" value="${esc(c.phone)}"></label><label>Mjesečna uplata (KM)<input data-change="cfee" data-id="${c.id}" type="text" inputmode="decimal" placeholder="npr. 50" value="${S.fee&&S.fee[c.id]!=null?num(S.fee[c.id]):''}"></label></div>${chanRow(c,'chtog')}</div>`).join('')+`<button class="addbtn" data-act="cadd">+ Dodaj dijete</button><button class="addbtn" data-act="imp" style="border-top:1px solid var(--line)">⇪ Uvezi djecu iz Excela / Google Sheets</button><button class="addbtn" data-act="kidexp" style="border-top:1px solid var(--line)">⇩ Izvezi svu djecu u Excel</button></div>`);
  const staff=active(S.trainers).filter(t=>t.role!=='superadmin');
  h+=sec('postavke','treneri','Treneri i uprava',staff.length+'',()=>`<div class="rows set">`+staff.map(t=>`<div class="item"><div class="trow" style="grid-template-columns:1fr auto auto"><input data-change="rname" data-id="${t.id}" value="${esc(t.name)}"><button class="xbtn" style="color:var(--brand)" data-act="rpass" data-id="${t.id}">Lozinka</button>${t.id===me.id?'<span></span>':`<button class="xbtn" style="color:var(--danger)" data-act="uact" data-id="${t.id}">Blokiraj</button>`}</div><div class="hint" style="margin:6px 2px 0">${t.role==='superadmin'?'Superadmin':t.role==='direktor'?'Direktor':'Trener'}${t.email?' · '+esc(t.email):''}</div></div>`).join('')+`<button class="addbtn" data-act="radd">+ Dodaj trenera</button></div>`);
  h+=sec('postavke','poruka','Poruka roditeljima','',()=>`<div class="rows set"><div class="item">
@@ -1087,7 +1088,7 @@ const A={
  reload:(d,el)=>guard(el,async()=>{await loadMonth(true);render();toast('Podaci osvježeni')},'Osvježavam…'),
  reloadall:(d,el)=>guard(el,async()=>{await loadBase();await loadMonth(true);closeSheet();render();toast('Podaci osvježeni')},'Osvježavam…'),
  rolesheet:()=>acctSheet(),
- logout:async()=>{closeSheet();ADM={backups:null,log:null,prev:{},obim:'treninzi'};OPEN.postavke.clear();OPEN.admin.clear();W={step:1};OPENKID=null;RPT={q:'',all:false,pay:'all'};await sb.auth.signOut();S.entries=[];loadedMonth=null;showLogin()},
+ logout:async()=>{closeSheet();ADM={backups:null,log:null,prev:{},obim:'treninzi'};OPEN.postavke.clear();OPEN.admin.clear();W={step:1};OPENKID=null;CQ='';RPT={q:'',all:false,pay:'all'};await sb.auth.signOut();S.entries=[];loadedMonth=null;showLogin()},
  bg:(d,el,e)=>{if(e.target===el)closeSheet()},
  close:()=>closeSheet(),
  yes:()=>{const f=pending;pending=null;closeSheet();f&&f()},
@@ -1129,7 +1130,8 @@ const A={
  retry:()=>boot(),
  payf:d=>{RPT.pay=d.f;render()},
  rall:()=>{RPT.all=!RPT.all;render()},
- kidopen:d=>{OPENKID=OPENKID===d.id?null:d.id;render()},
+ kidopen:d=>{OPENKID=OPENKID===d.id?null:d.id;render();applyCQ();
+   const el=OPENKID&&document.querySelector('.kidopen');if(el){const hh=document.querySelector('header').offsetHeight;window.scrollTo({top:Math.max(0,el.getBoundingClientRect().top+window.scrollY-hh-12),behavior:'smooth'})}},
  paytog:d=>{const id=reportChild,k=d.v==='mjesecna'?'m':'d';const cur=S.pay[id]||{m:false,d:false};const v=!cur[k];
    S.pay[id]={...cur,[k]:v};render();
    const key=id+k,seq=(PAYSEQ[key]=(PAYSEQ[key]||0)+1);
@@ -1286,7 +1288,7 @@ const C={
  e_tt:t=>{E.to=t.value;E.from=t.value?addMin(t.value,-E.hours*60):'';const o=$('#e_tf');if(o)o.value=E.from}
 };
 document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.change;if(k&&C[k])C[k](e.target)});
-document.addEventListener('input',e=>{if(e.target.id==='rq'){RPT.q=e.target.value;const v=RPT.q.trim().toLowerCase();document.querySelectorAll('.rkid').forEach(b=>b.style.display=b.dataset.n.includes(v)?'':'none');return}if(e.target.id==='cq'){const v=e.target.value.trim().toLowerCase();document.querySelectorAll('.citem').forEach(b=>b.style.display=b.dataset.n.includes(v)?'':'none');return}if(e.target.id==='q'){const v=e.target.value.trim().toLowerCase();document.querySelectorAll('.kid').forEach(b=>b.style.display=b.dataset.n.includes(v)?'':'none')}});
+document.addEventListener('input',e=>{if(e.target.id==='rq'){RPT.q=e.target.value;const v=RPT.q.trim().toLowerCase();document.querySelectorAll('.rkid').forEach(b=>b.style.display=b.dataset.n.includes(v)?'':'none');return}if(e.target.id==='cq'){CQ=e.target.value;applyCQ();return}if(e.target.id==='q'){const v=e.target.value.trim().toLowerCase();document.querySelectorAll('.kid').forEach(b=>b.style.display=b.dataset.n.includes(v)?'':'none')}});
 
 /* ---------- bez zumiranja (iOS Safari ignoriše user-scalable, pa ga blokiramo i ovdje) ---------- */
 ['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
