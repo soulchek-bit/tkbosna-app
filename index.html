@@ -531,8 +531,12 @@ async function boot(){
 }
 
 /* ---------- prikaz ---------- */
+let PREVVIEW=null;const SAVEDY={};
+try{history.scrollRestoration='manual'}catch(e){}
+function repaintMain(){const m=$('#main');if(!m)return;m.style.display='none';void m.offsetHeight;m.style.display='';m.style.webkitTransform='translateZ(0)';requestAnimationFrame(()=>requestAnimationFrame(()=>{m.style.webkitTransform=''}))}
 function render(scroll){
  if(!me)return;
+ if(PREVVIEW&&PREVVIEW!==view)SAVEDY[PREVVIEW]=window.scrollY;PREVVIEW=view;
  $('#club').textContent=CFG.club;
  $('#who').textContent=me.name;
  const tabs=isDir()?[['pregled','Pregled',I.chart],['djeca','Izvještaji',I.doc],['unos','Unos',I.plus],['postavke','Postavke',I.gear]].concat(isSuper()?[['admin','Admin',I.shield]]:[])
@@ -570,7 +574,10 @@ function backTarget(){
 function performBack(){const t=backTarget();if(!t)return false;
  if(t==='sheet'){closeSheet();return true}
  if(t==='step'){W.step--;render(true);return true}
- view=t;render(true);if(t!=='unos'&&t!=='postavke')refresh();return true}
+ view=t;render();const y=SAVEDY[t]||0;
+ let last=null;const restore=()=>{if(last!==null&&Math.abs(window.scrollY-last)>2)return;repaintMain();const ty=Math.min(y,Math.max(0,document.documentElement.scrollHeight-innerHeight));window.scrollTo(0,ty);last=window.scrollY};
+ restore();requestAnimationFrame(restore);setTimeout(restore,120);
+ if(t!=='unos'&&t!=='postavke')Promise.resolve(refresh()).then(()=>requestAnimationFrame(restore)).catch(()=>{});return true}
 let hasEntry=false;
 function syncHistory(){try{if(backTarget()&&!hasEntry){history.pushState({tk:1},'');hasEntry=true}}catch(e){}}
 window.addEventListener('popstate',()=>{hasEntry=false;performBack();syncHistory()});
