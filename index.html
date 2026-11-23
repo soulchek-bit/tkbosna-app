@@ -270,6 +270,13 @@ input.feeoff{background:#eef0ec!important;color:#8a918b!important;font-size:12px
 .g3f input{padding-left:9px!important;padding-right:6px!important;font-size:15px!important}
 .g3f input.feeoff{font-size:12px!important;padding-left:7px!important;padding-right:4px!important}
 .frtag{background:var(--brand2);color:var(--brand);border-radius:6px;padding:1px 6px;font-size:11px;font-weight:600}
+.wcal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:4px 0 6px}.wcw{font-size:11px;color:var(--muted);text-align:center;padding:2px 0}
+.wcd{position:relative;aspect-ratio:1/1.05;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;min-width:0}
+.wcd small{font-size:10px;line-height:1;margin-top:2px;white-space:nowrap}.wcd.tr{background:var(--brand);border-color:var(--brand);color:#fff}.wcd.tr small{color:#d5ead9}
+.wcd.wk{background:var(--brand2);border-color:#b9d7bf}.wcd.td{border:2px solid var(--ink)}.wcd.sel{outline:3px solid #8fd6a9;outline-offset:1px}
+.wcd i{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#d08a1e}
+.wleg{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted);margin:2px 2px 8px}.wleg b{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.lg1{background:var(--brand)}.lg2{background:var(--brand2);border:1px solid #b9d7bf}.lg3{background:#d08a1e;border-radius:50%!important}.lg4{border:2px solid var(--ink)}
 .pacc-bar{display:flex;justify-content:flex-end;margin:14px 0 2px}
 .av.pg1{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 10px 5px rgba(31,168,85,.7)}
 .av.pg2{background:#e3f7ea;color:#0f6b38;box-shadow:inset 0 0 0 3px #1fa855,inset 0 0 14px 12px rgba(31,168,85,.8)}
@@ -344,6 +351,7 @@ const DAYS=['nedjelja','ponedjeljak','utorak','srijeda','četvrtak','petak','sub
 const MONTHS=['januar','februar','mart','april','maj','juni','juli','august','septembar','oktobar','novembar','decembar'];
 const COLORS=['#2b6436','#3b7dd8','#d9822b','#8e5bd1','#c0392b','#0f8b8d','#b5892b','#5d6b7a'];
 const I={
+ clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
  plus:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
  list:'<svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
  chart:'<svg viewBox="0 0 24 24"><path d="M3 20h18M6 16v-5M11 16V6M16 16v-8"/></svg>',
@@ -548,11 +556,11 @@ function render(scroll){
  if(PREVVIEW&&PREVVIEW!==view)SAVEDY[PREVVIEW]=window.scrollY;PREVVIEW=view;if(!INBACK)lastSrc='';
  $('#club').textContent=CFG.club;
  $('#who').textContent=me.name;
- const tabs=isDir()?[['pregled','Pregled',I.chart],['djeca','Izvještaji',I.doc],['unos','Unos',I.plus],['postavke','Postavke',I.gear]].concat(isSuper()?[['admin','Admin',I.shield]]:[])
+ const tabs=isDir()?[['pregled','Pregled',I.chart],['rv','Radno',I.clock],['djeca','Izvještaji',I.doc],['unos','Unos',I.plus],['postavke','Postavke',I.gear]].concat(isSuper()?[['admin','Admin',I.shield]]:[])
                   :[['unos','Unos',I.plus],['moji','Moji unosi',I.list]];
  const ok=tabs.map(t=>t[0]).concat(['sati'],isDir()?['izvjestaj','radno','lista']:[]);
  if(!ok.includes(view))view=tabs[0][0];
- const act=view==='sati'?'unos':(view==='radno'||view==='lista')?'pregled':view==='izvjestaj'?(reportFrom==='pregled'||reportFrom==='admin'?reportFrom:'djeca'):view;
+ const act=view==='sati'?'unos':view==='radno'?(radnoFrom==='lista'?'pregled':'rv'):view==='lista'?'pregled':view==='izvjestaj'?(reportFrom==='pregled'||reportFrom==='admin'?reportFrom:'djeca'):view;
  $('#nav').innerHTML=tabs.map(t=>`<button class="${t[0]===act?'on':''}" data-act="go" data-v="${t[0]}">${t[2]}${t[1]}</button>`).join('');
  let body;try{body=V[view]()}catch(e){console.error(e);body=`<div class="loading" style="padding-top:12vh"><div class="offic">!</div><h2 style="margin:10px 0 4px">Greška u prikazu</h2><p class="muted" style="margin:0 0 6px">Pošaljite ovu poruku Amiru:</p><p class="hint" style="word-break:break-word;user-select:text">${esc(view+': '+(e&&e.message||e)+' '+((e&&e.stack||'').split('\n')[1]||''))}</p><button class="btn big ok" data-act="reload">Osvježi</button></div>`}
  $('#main').innerHTML=(isSuper()&&S.paused?`<div class="pbanner">Aplikacija je pauzirana – treneri i direktor nemaju pristup. <button data-act="go" data-v="admin">Admin</button></div>`:'')+body;
@@ -577,7 +585,8 @@ function backTarget(){
  if(view==='unos'&&W.step>1&&W.step<5)return 'step';
  if(view==='sati')return 'unos';
  if(view==='izvjestaj')return reportFrom||'djeca';
- if(view==='radno'||view==='lista')return 'pregled';
+ if(view==='radno')return radnoFrom||'rv';
+ if(view==='lista')return 'pregled';
  return null;
 }
 let INBACK=false;
@@ -699,7 +708,7 @@ V.pregled=()=>{
  let h=`<div class="bar"><h2>Pregled</h2><input type="month" class="mth" data-change="month" value="${month}"></div><div class="r6030"><select data-change="tr"><option value="">Svi treneri</option>${trOpts.map(t=>`<option value="${t.id}" ${trFilter===t.id?'selected':''}>${esc(t.name)}${t.archived||t.hidden?' (neaktivan)':''}</option>`).join('')}</select><button class="fbtn" data-act="reload">Osvježi</button></div>`;
  h+=`<div class="kpis"><div class="kpi main"><span>Ukupno · ${monthLabel(month)}</span><b>${km(sum(es,e=>e.amount))}</b></div>
   </div>${kpi4(tStats(es))}`;
- if(!es.length){const ws=workSection();return h+`<div class="empty">Nema unosa za odabrani period.</div>`+(ws?wrapSec('pregled','rv','Radno vrijeme','',ws):'')}
+ if(!es.length)return h+`<div class="empty">Nema unosa za odabrani period.</div>`;
  const td=es.filter(e=>e.date===today());
  if(month===today().slice(0,7))h+=`<h3>Danas</h3><div class="rows"><button class="row" data-act="list" data-k="danas"><div class="grow">${(st=>`<div class="t">${termTxt(st.term)} · ${hMin(st.court)} na terenu</div><div class="s">${st.kids} djece · ${st.n} zapisa</div>`)(tStats(td))}</div><span class="amt">${km(sum(td,e=>e.amount))}</span>${I.chev}</button></div>`;
  const OPENP=OPEN.pregled;h+=`<div class="pacc-bar"><button class="xbtn accall" data-act="accall" data-sc="pregled" ${OPENP.size?'':'disabled'}>Zatvori sve</button></div>`;
@@ -711,7 +720,6 @@ V.pregled=()=>{
  h+=`<h3>Po vrsti treninga</h3><div class="rows">`+Object.keys(bt).map(k=>({k,l:bt[k],a:sum(bt[k],e=>e.amount)})).sort((a,b)=>b.a-a.a).map(x=>{const c=typeColor(x.l[0]);
   return `<button class="row" data-act="list" data-k="vrsta" data-v="${esc(x.k)}"><div class="grow"><div class="t">${esc(x.k)}</div><div class="s">${(st=>`${termTxt(st.term)} · ${hMin(st.court)} · ${st.kids} djece`)(tStats(x.l))}</div><div class="track" style="--c:${c}"><i style="width:${tot?(x.a/tot*100).toFixed(1):0}%"></i></div></div><span class="amt">${km(x.a)}</span>${I.chev}</button>`}).join('')+`</div>`;
  h=h.slice(0,mk)+wrapSec('pregled','vr','Po vrsti treninga',`${Object.keys(bt).length}`,h.slice(mk));
- {const ws=workSection();if(ws){const fl=S.work.filter(r=>r.date.startsWith(month)&&(!trFilter||r.trainerId===trFilter)&&r.flag).length,nt=(ws.match(/data-act="radno"/g)||[]).length;h+=wrapSec('pregled','rv','Radno vrijeme',fl?`<span style="color:var(--danger)">${fl} za provjeru</span>`:`${nt} ${nt===1?'trener':'trenera'}`,ws)}}
  if(!trFilter){const br=groupBy(es,e=>e.trainerId);mk=h.length;
   h+=`<h3>Po treneru</h3><div class="rows">`+Object.keys(br).filter(id=>!hiddenTr(id)).map(id=>`<button class="row" data-act="list" data-k="trener" data-v="${id}"><div class="grow"><div class="t">${esc(trName(id))}</div><div class="s">${(st=>`${termTxt(st.term)} · ${hMin(st.court)} na terenu · ${st.kids} djece`)(tStats(br[id]))}</div></div><span class="amt">${km(sum(br[id],e=>e.amount))}</span>${I.chev}</button>`).join('')+`</div>`;h=h.slice(0,mk)+wrapSec('pregled','tr','Po treneru',`${Object.keys(br).filter(id=>!hiddenTr(id)).length}`,h.slice(mk));}
  const bd=groupBy(es,e=>e.date);
@@ -769,23 +777,40 @@ V.sati=()=>{
  if(!rows.length)return h+`<div class="empty">Nema evidentiranog rada za ${monthLabel(month)}.</div>`;
  return h+workDays(rows)+`<p class="note">Ako vrijeme nije tačno, tapnite „Predloži ispravku“. Direktor će prijedlog vidjeti i potvrditi.</p>`;
 };
+let CALDAY=null,CALKEY='',radnoFrom='rv';
+const hShort=m=>{const v=Math.round(m/6)/10;return String(v).replace('.',',')+' h'};
+function workCalendar(rows,tr){
+ const [y,mo]=month.split('-').map(Number),n=new Date(y,mo,0).getDate(),first=(new Date(y,mo-1,1).getDay()+6)%7;
+ const wd=groupBy(rows,r=>r.date),ed=groupBy(tr,e=>e.date);
+ let h='<div class="wcal">'+['Pon','Uto','Sri','Čet','Pet','Sub','Ned'].map(x=>`<div class="wcw">${x}</div>`).join('')+'<div class="wce"></div>'.repeat(first);
+ for(let d=1;d<=n;d++){const ds=`${month}-${String(d).padStart(2,'0')}`,l=wd[ds]||[],w=sum(l,liveMin),c=courtMin(ed[ds]||[]);
+  const flag=l.some(r=>r.flag)||(c>0&&w===0)||(w>0&&c>w+5);
+  const cls=(c>0?' tr':w>0?' wk':'')+(ds===today()?' td':'')+(ds===CALDAY?' sel':'');
+  h+=`<button class="wcd${cls}" data-act="calday" data-d="${ds}">${d}${c>0?`<small>${hShort(c)}</small>`:w>0?`<small>${hShort(w)} rad</small>`:''}${flag?'<i></i>':''}</button>`}
+ return h+'</div><div class="wleg"><span><b class="lg1"></b>treninzi</span><span><b class="lg2"></b>rad bez treninga</span><span><b class="lg3"></b>za provjeru</span><span><b class="lg4"></b>danas</span></div>';
+}
 V.radno=()=>{
  WD=true;const t=S.trainers.find(x=>x.id===radnoTr)||{name:'—'};
  const rows=S.work.filter(r=>r.trainerId===radnoTr&&r.date.startsWith(month));
  const tr=S.entries.filter(e=>e.trainerId===radnoTr&&e.date.startsWith(month));
- const days=new Set(rows.map(r=>r.date)).size,tot=sum(rows,liveMin);
- let h=`<div class="bar sub"><button class="back" data-act="back">${I.left}Pregled</button><input type="month" class="mth" data-change="month" value="${month}"></div><h2>${esc(t.name)}</h2>
- ${(x=>`<div class="kpis"><div class="kpi"><span>Rad</span><b>${hMin(x.w)}</b></div><div class="kpi"><span>Na terenu</span><b>${hMin(x.c)}</b></div><div class="kpi"><span>Razlika</span><b>${x.diff<0?'−':''}${hMin(Math.abs(x.diff))}</b></div></div><div class="card" style="padding:10px 14px;margin-bottom:8px">${cmpBar(x)}${cmpBadges(x)?`<div style="margin-top:6px">${cmpBadges(x)}</div>`:''}</div>`)(workCmp(rows,tr))}
- <button class="btn" data-act="wadd">+ Dodaj smjenu ručno</button>`;
- if(!rows.length&&!tr.length)return h+`<div class="empty" style="margin-top:12px">Nema evidentiranog rada za ${monthLabel(month)}.</div>`;
- return h+workDays(rows,tr);
+ if(CALKEY!==radnoTr+month){CALKEY=radnoTr+month;const act=[...new Set([...rows.map(r=>r.date),...tr.map(e=>e.date)])].sort(),fl=rows.filter(r=>r.flag).map(r=>r.date).sort();CALDAY=fl.length?fl[fl.length-1]:today().startsWith(month)&&act.includes(today())?today():act.length?act[act.length-1]:(today().startsWith(month)?today():null)}
+ const daysN=new Set([...rows.map(r=>r.date),...tr.map(e=>e.date)]).size;
+ let h=`<div class="bar sub"><button class="back" data-act="back">${I.left}${radnoFrom==='lista'?'Nazad':'Radno vrijeme'}</button><input type="month" class="mth" data-change="month" value="${month}"></div><h2>${esc(t.name)}</h2>
+ ${(x=>`<div class="kpis"><div class="kpi"><span>Rad</span><b>${hMin(x.w)}</b></div><div class="kpi"><span>Na terenu</span><b>${hMin(x.c)}</b></div><div class="kpi"><span>Radnih dana</span><b>${daysN}</b></div></div><div class="card" style="padding:10px 14px;margin-bottom:8px"><div class="s" style="font-size:13px;margin-bottom:4px">${cmpLine(x)}</div>${cmpBar(x)}${cmpBadges(x)?`<div style="margin-top:6px">${cmpBadges(x)}</div>`:''}</div>`)(workCmp(rows,tr))}`;
+ h+=workCalendar(rows,tr);
+ if(CALDAY){const r1=rows.filter(r=>r.date===CALDAY),e1=tr.filter(e=>e.date===CALDAY);
+  h+=(r1.length||e1.length)?workDays(r1,e1):`<div class="dayhead"><span>${fmtDay(CALDAY)}</span></div><div class="empty" style="padding:14px">Nema rada ni treninga.</div>`}
+ h+=`<button class="btn" data-act="wadd">+ Dodaj smjenu ručno</button>`;
+ return h;
 };
-function workSection(){
- const ws=S.work.filter(r=>r.date.startsWith(month)&&(!trFilter||r.trainerId===trFilter));
+V.rv=()=>{const ws=workSection(true);
+ return `<div class="bar"><h2>Radno vrijeme</h2><input type="month" class="mth" data-change="month" value="${month}"></div>`+(ws||`<div class="empty">Nema trenera.</div>`)};
+function workSection(all){const trF=all?'':trFilter;
+ const ws=S.work.filter(r=>r.date.startsWith(month)&&(!trF||r.trainerId===trF));
  if(!ws.length&&!S.trainers.length)return '';
  const flags=ws.filter(r=>r.flag).length;
- const ids=[...new Set(S.trainers.filter(t=>!t.archived&&t.role!=='superadmin').map(t=>t.id).concat(ws.map(r=>r.trainerId)))].filter(id=>(!trFilter||id===trFilter)&&!hiddenTr(id));
- let h=`<h3>Radno vrijeme</h3>${flags?`<div class="wwarn" style="margin-bottom:8px">${flags} ${flags===1?'zapis čeka':'zapisa čeka'} provjeru – otvorite trenera i potvrdite ili ispravite.</div>`:''}<div class="rows">`;
+ const ids=[...new Set(S.trainers.filter(t=>!t.archived&&t.role!=='superadmin').map(t=>t.id).concat(ws.map(r=>r.trainerId)))].filter(id=>(!trF||id===trF)&&!hiddenTr(id));
+ let h=`${all?'':'<h3>Radno vrijeme</h3>'}${flags?`<div class="wwarn" style="margin-bottom:8px">${flags} ${flags===1?'zapis čeka':'zapisa čeka'} provjeru – otvorite trenera i potvrdite ili ispravite.</div>`:''}<div class="rows">`;
  h+=ids.map(id=>{const l=ws.filter(r=>r.trainerId===id),tr=S.entries.filter(e=>e.trainerId===id&&e.date.startsWith(month)),f=l.filter(r=>r.flag).length,live=l.some(r=>!r.end);
   return `<button class="row" data-act="radno" data-id="${id}"><div class="grow"><div class="t">${esc(trName(id))} ${live?'<span class="wb live">radi</span>':''} ${f?`<span class="wb warn">${f} za provjeru</span>`:''}</div>${(x=>`<div class="s">${cmpLine(x)}</div>${cmpBar(x)}${cmpBadges(x)?`<div style="margin-top:4px">${cmpBadges(x)}</div>`:''}`)(workCmp(l,tr))}</div>${I.chev}</button>`}).join('')||'<div class="row"><div class="grow s">Nema trenera.</div></div>';
  return h+`</div>`;
@@ -1217,7 +1242,8 @@ const A={
    const arr=DUR().slice();if(d.i!=null)arr.splice(+d.i,1);if(arr.some(x=>Math.abs(x-v)<0.005))return toast('To trajanje već postoji');arr.push(v);
    guard(el,async()=>{await saveDurs(arr);closeSheet();render();toast('Sačuvano')},'…')},
  list:d=>{LST={k:d.k,v:d.v||''};view='lista';render(true)},
- radno:d=>{radnoTr=d.id;view='radno';render(true)},
+ radno:d=>{radnoFrom=view;radnoTr=d.id;view='radno';render(true)},
+ calday:d=>{CALDAY=d.d;const y=window.scrollY;render();window.scrollTo(0,y)},
  wcsv:()=>downloadWorkCSV(),
  wstart:(d,el)=>guard(el,async()=>{await q(sb.rpc('zapocni_rad',{}));await loadWork();render();toast('Rad je započet')},'…'),
  wstop:()=>{const o=myOpen();confirmYN('Završiti rad?',o?`Radite od ${tHM(o.start)} (${fmtMin(liveMin(o))}).`:'',()=>guard(null,async()=>{await q(sb.rpc('zavrsi_rad'));await loadWork();render();toast('Rad je završen')}))},
@@ -1240,7 +1266,7 @@ const A={
    let ps=toIso(dt,s),pe=e?toIso(dt,e):null;if(pe&&pe<=ps){const x=new Date(pe);x.setDate(x.getDate()+1);pe=x.toISOString()}
    guard(el,async()=>{await q(sb.rpc('ispravi_rad',{p_id:d.id,p_pocetak:ps,p_kraj:pe}));closeSheet();await loadWork();render();toast('Sačuvano')},'…')},
  wdel:d=>{const r=S.work.find(x=>x.id===d.id);confirmYN('Obrisati ovu smjenu?',`${fmtDay(r.date)} · ${tHM(r.start)} – ${r.end?tHM(r.end):'…'}`,()=>guard(null,async()=>{await q(sb.rpc('obrisi_rad',{p_id:r.id}));await loadWork();render();toast('Obrisano')}),true)},
- wadd:()=>timeSheet('Dodaj smjenu',esc(trName(radnoTr)),`<label>Datum<input type="date" id="wa_d" value="${today()}" max="${today()}"></label><div class="g2"><label>Početak<input type="time" id="wa_s"></label><label>Kraj<input type="time" id="wa_e"></label></div><label>Napomena<textarea id="wa_n" rows="2"></textarea></label>`,'waddsave'),
+ wadd:()=>timeSheet('Dodaj smjenu',esc(trName(radnoTr)),`<label>Datum<input type="date" id="wa_d" value="${view==='radno'&&CALDAY&&CALDAY<=today()?CALDAY:today()}" max="${today()}"></label><div class="g2"><label>Početak<input type="time" id="wa_s"></label><label>Kraj<input type="time" id="wa_e"></label></div><label>Napomena<textarea id="wa_n" rows="2"></textarea></label>`,'waddsave'),
  waddsave:(d,el)=>{const dt=$('#wa_d').value,s=$('#wa_s').value,e=$('#wa_e').value;if(!dt||!s||!e)return toast('Upišite datum, početak i kraj');
    let ps=toIso(dt,s),pe=toIso(dt,e);if(pe<=ps){const x=new Date(pe);x.setDate(x.getDate()+1);pe=x.toISOString()}
    guard(el,async()=>{await q(sb.rpc('dodaj_rad',{p_trener:radnoTr,p_pocetak:ps,p_kraj:pe,p_napomena:$('#wa_n').value.trim()||null}));closeSheet();await loadWork();render();toast('Smjena dodana')},'…')},
