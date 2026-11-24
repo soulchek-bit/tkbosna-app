@@ -1225,6 +1225,7 @@ function editSheet(){
   <div class="g2"><label style="margin-top:4px">Cijena po satu (KM)<input data-change="e_price" inputmode="decimal" value="${num(E.price)}"></label><label style="margin-top:4px">Datum<input type="date" data-change="e_date" value="${E.date}"></label></div>
   <div class="g2"><label style="margin-top:4px">Početak<input type="time" id="e_tf" data-change="e_tf" value="${E.from||''}"></label><label style="margin-top:4px">Kraj<input type="time" id="e_tt" data-change="e_tt" value="${E.to||''}"></label></div>
   <label>Trener<select data-change="e_tr">${trs.map(t=>`<option value="${t.id}" ${t.id===E.trainerId?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label>
+  ${S.courtsOk?`<label>Teren<select data-change="e_court"><option value="">— bez terena —</option>${(S.courts||[]).filter(c=>!c.archived||c.id===E.courtId).map(c=>`<option value="${c.id}" ${c.id===E.courtId?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>`:''}
  </div>
  <div class="cf-total"><span>Iznos</span><b>${km(r2(E.hours*E.price))}</b></div>
  <button class="btn big ok" data-act="e_save">Sačuvaj izmjene</button>
@@ -1297,7 +1298,7 @@ const A={
  edit:d=>{if(!isDir())return;const e=S.entries.find(x=>x.id===d.id);if(!e)return;E={...e};editSheet()},
  e_h:d=>{E.hours=parseFloat(d.h);if(E.from)E.to=addMin(E.from,E.hours*60);editSheet()},
  e_save:(d,el)=>guard(el,async()=>{
-   await q(sb.from('treninzi').update({dijete_id:E.childId,vrsta_id:E.typeId||null,sati:E.hours,cijena_po_satu:E.price,datum:E.date,trener_id:E.trainerId,vrijeme_od:E.from||null,vrijeme_do:E.to||null}).eq('id',E.id).select('id').single());
+   await q(sb.from('treninzi').update({dijete_id:E.childId,vrsta_id:E.typeId||null,sati:E.hours,cijena_po_satu:E.price,datum:E.date,trener_id:E.trainerId,vrijeme_od:E.from||null,vrijeme_do:E.to||null,...(S.courtsOk?{teren_id:E.courtId||null}:{})}).eq('id',E.id).select('id').single());
    replaceEntry(await fetchEntry(E.id));closeSheet();render();toast('Izmjene sačuvane');
  },'Spremam…'),
  e_del:()=>{const id=E.id;ask('Obrisati trening?',`${esc(child(E.childId).name)} · ${esc(E.typeName)} · ${hrs(E.hours)} · ${km(r2(E.hours*E.price))}`,'Obriši trening',()=>guard(null,async()=>{await deleteEntry(id);render();toast('Trening obrisan')}))},
@@ -1495,6 +1496,7 @@ const C={
  rname:t=>{const r=S.trainers.find(r=>r.id===t.dataset.id);const v=t.value.trim();if(r&&v){r.name=v;if(r.id===me.id){me.name=v;$('#who').textContent=v}upd('profili',r.id,{ime:v},'Sačuvano')}else if(r)t.value=r.name},
  prices:async t=>{const v=t.checked;try{await q(sb.from('postavke').update({treneri_vide_cijene:v}).eq('id',1).select('id').single());S.trenerVidiCijene=v;render();toast(v?'Treneri sada vide cijene':'Cijene su sakrivene od trenera')}catch(e){t.checked=!v;toast(errText(e))}},
  e_child:t=>{E.childId=t.value},
+ e_court:t=>{E.courtId=t.value||null},
  e_type:t=>{const x=type(t.value);if(x){E.typeId=x.id;E.typeName=x.name;E.price=x.price;editSheet()}},
  e_price:t=>{const p=parseFloat(t.value.replace(',','.'));if(p>=0)E.price=r2(p);editSheet()},
  e_date:t=>{if(t.value)E.date=t.value},
